@@ -45,7 +45,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onLogout
 }) => {
   const [activePreviewTab, setActivePreviewTab] = useState<'pos' | 'kridi' | 'stock' | 'dashboard' | 'kds'>('pos');
-  const [restaurantCaptureTab, setRestaurantCaptureTab] = useState<'tables' | 'kds' | 'pos' | 'receipt'>('tables');
+  const [restaurantCaptureTab, setRestaurantCaptureTab] = useState<'pos' | 'tables' | 'kds' | 'receipt'>('pos');
   const [subscriptionDays, setSubscriptionDays] = useState<number>(365);
   const [trialPhone, setTrialPhone] = useState<string>('');
   const [trialName, setTrialName] = useState<string>('');
@@ -656,9 +656,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           marginBottom: '28px'
         }}>
           {[
-            { id: 'tables', label: '1. Plan de Tables & Salons', icon: UtensilsCrossed, badge: 'Salles VIP & Terrasse' },
-            { id: 'kds', label: '2. Écran Cuisine KDS', icon: ChefHat, badge: 'Zéro Papier' },
-            { id: 'pos', label: '3. Prise de Commande Tactile', icon: Store, badge: 'Rapide < 5s' },
+            { id: 'pos', label: '1. Prise de Commande Tactile', icon: Store, badge: 'Rapide < 5s' },
+            { id: 'tables', label: '2. Plan de Tables & Salons', icon: UtensilsCrossed, badge: 'Salles VIP & Terrasse' },
+            { id: 'kds', label: '3. Écran Cuisine KDS', icon: ChefHat, badge: 'Zéro Papier' },
             { id: 'receipt', label: '4. Ticket & Rapprochement Bankily', icon: Sparkles, badge: 'NIF & TVA 16%' }
           ].map(tab => {
             const Icon = tab.icon;
