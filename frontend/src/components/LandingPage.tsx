@@ -45,7 +45,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onLogout
 }) => {
   const [activePreviewTab, setActivePreviewTab] = useState<'pos' | 'kridi' | 'stock' | 'dashboard' | 'kds'>('pos');
-  const [subscriptionDays, setSubscriptionDays] = useState<number>(90);
+  const [restaurantCaptureTab, setRestaurantCaptureTab] = useState<'tables' | 'kds' | 'pos' | 'receipt'>('tables');
+  const [subscriptionDays, setSubscriptionDays] = useState<number>(365);
   const [trialPhone, setTrialPhone] = useState<string>('');
   const [trialName, setTrialName] = useState<string>('');
   const [trialSuccess, setTrialSuccess] = useState<boolean>(false);
@@ -606,6 +607,291 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
+      {/* 3.5. NOUVELLE SECTION VITRINE : SYSTÈME RESTAURATION COMPLET AVEC CAPTURES RÉELLES & ANIMATIONS */}
+      <section className="restaurant-showcase-section">
+        {/* En-tête de la section Restauration */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(234, 88, 12, 0.12)',
+            border: '1px solid rgba(234, 88, 12, 0.35)',
+            padding: '6px 16px',
+            borderRadius: '999px',
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            color: '#ea580c',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            marginBottom: '12px'
+          }}>
+            <UtensilsCrossed size={14} />
+            <span>Spécial Restaurants, Cafés & Fast-Foods Mauritanie</span>
+            <span style={{ background: '#ea580c', color: '#fff', fontSize: '0.62rem', padding: '1px 6px', borderRadius: '4px', fontWeight: 900 }}>NOUVEAU</span>
+          </div>
+
+          <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 900, letterSpacing: '-0.02em', margin: '0 0 10px' }}>
+            Un Système Restaurant Complet &{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #ea580c 0%, #f59e0b 50%, #10b981 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              display: 'inline-block'
+            }}>
+              Ultra-Fluide en Direct
+            </span>
+          </h2>
+          <p style={{ fontSize: '0.96rem', color: 'var(--text-muted)', maxWidth: '780px', margin: '0 auto', lineHeight: '1.6' }}>
+            Découvrez en direct l'interface tactile utilisée par les serveurs, le plan de table 2D interactif, l'écran cuisine KDS sans fil et l'impression automatique des tickets d'addition en MRU.
+          </p>
+        </div>
+
+        {/* Sélecteur d'onglets animé pour basculer entre les captures */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '12px',
+          flexWrap: 'wrap',
+          marginBottom: '28px'
+        }}>
+          {[
+            { id: 'tables', label: '1. Plan de Tables & Salons', icon: UtensilsCrossed, badge: 'Salles VIP & Terrasse' },
+            { id: 'kds', label: '2. Écran Cuisine KDS', icon: ChefHat, badge: 'Zéro Papier' },
+            { id: 'pos', label: '3. Prise de Commande Tactile', icon: Store, badge: 'Rapide < 5s' },
+            { id: 'receipt', label: '4. Ticket & Rapprochement Bankily', icon: Sparkles, badge: 'NIF & TVA 16%' }
+          ].map(tab => {
+            const Icon = tab.icon;
+            const active = restaurantCaptureTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setRestaurantCaptureTab(tab.id as any)}
+                className={`restaurant-tab-pill ${active ? 'active' : ''}`}
+              >
+                <Icon size={16} />
+                <span>{tab.label}</span>
+                <span style={{
+                  fontSize: '0.68rem',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  background: active ? 'rgba(255, 255, 255, 0.22)' : 'var(--bg-tertiary)',
+                  color: active ? '#ffffff' : 'var(--text-dim)',
+                  fontWeight: 800
+                }}>
+                  {tab.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Cadre Mockup Haute Définition avec la capture sélectionnée & badges flottants */}
+        <div className="restaurant-mockup-frame">
+          {/* Topbar style macOS / Tablette Restaurant */}
+          <div className="restaurant-mockup-topbar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ef4444' }} />
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#f59e0b' }} />
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981' }} />
+              <span style={{ marginLeft: '12px', fontSize: '0.78rem', color: '#94a3b8', fontFamily: 'monospace', fontWeight: 600 }}>
+                {restaurantCaptureTab === 'tables' && 'caissa.mr/restaurant/plan-de-tables • Salle Principale & Terrasse'}
+                {restaurantCaptureTab === 'kds' && 'caissa.mr/restaurant/cuisine-kds • Écran Chef Cuisinier en Direct'}
+                {restaurantCaptureTab === 'pos' && 'caissa.mr/restaurant/caisse-tactile • Prise de Commande & Menu'}
+                {restaurantCaptureTab === 'receipt' && 'caissa.mr/restaurant/ticket • Rapprochement Bankily / Masrvi'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span className="pulse-live-dot" />
+              <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Système Actif en Ligne
+              </span>
+              <button
+                onClick={() => {
+                  setSector('restaurant');
+                  onEnterApp(restaurantCaptureTab === 'tables' ? 'tables' : restaurantCaptureTab === 'kds' ? 'kds' : 'pos');
+                }}
+                className="btn-primary"
+                style={{ padding: '4px 12px', fontSize: '0.75rem', fontWeight: 800, borderRadius: '6px', marginLeft: '6px' }}
+              >
+                Tester ce mode ➔
+              </button>
+            </div>
+          </div>
+
+          {/* Zone d'affichage de la capture d'écran avec badges flottants */}
+          <div style={{ position: 'relative', width: '100%', minHeight: '380px', maxHeight: '620px', overflow: 'hidden', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* L'image de capture réelle */}
+            <img
+              src={
+                restaurantCaptureTab === 'tables'
+                  ? '/screenshots/tables_restaurant_screen_1791315425516.png'
+                  : restaurantCaptureTab === 'kds'
+                  ? '/screenshots/kds_restaurant_screen_1791315455733.png'
+                  : restaurantCaptureTab === 'pos'
+                  ? '/screenshots/pos_restaurant_screen_1791315364889.png'
+                  : '/screenshots/payment_receipt_success_1791318272048.png'
+              }
+              alt="Capture Système Restaurant Caissa"
+              style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block',
+                objectFit: 'contain',
+                transition: 'transform 0.4s ease, opacity 0.3s ease',
+                maxHeight: '620px'
+              }}
+            />
+
+            {/* Badges Flottants Interactifs Animés selon l'onglet actif */}
+            {restaurantCaptureTab === 'tables' && (
+              <>
+                <div className="restaurant-floating-badge restaurant-badge-1">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <UtensilsCrossed size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#ef4444', fontWeight: 800, textTransform: 'uppercase' }}>🔴 Table 4 Occupée</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Méchoui d'Agneau • 1 450 MRU</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Temps : 45 min • Serveur Ahmed</div>
+                  </div>
+                </div>
+
+                <div className="restaurant-floating-badge restaurant-badge-2">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CheckCircle2 size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>🟢 Table 2 Prête</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Terrasse Extérieure • 4 Couverts</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Prête pour installation client</div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {restaurantCaptureTab === 'kds' && (
+              <>
+                <div className="restaurant-floating-badge restaurant-badge-1">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(234, 88, 12, 0.2)', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ChefHat size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#ea580c', fontWeight: 800, textTransform: 'uppercase' }}>⏳ En Cuisson (12 min)</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Table 8 VIP • 2x Dorade Royale</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Alerte sonore automatique au chef</div>
+                  </div>
+                </div>
+
+                <div className="restaurant-floating-badge restaurant-badge-2">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Sparkles size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>✅ Prêt pour le Service</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Table 1 • Riz au Poisson (Thieb)</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Notification serveur envoyée</div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {restaurantCaptureTab === 'pos' && (
+              <>
+                <div className="restaurant-floating-badge restaurant-badge-1">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Store size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Prise de Commande Rapide</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Photos HD & Suppléments Mauritanie</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Thé (3 verres), Cuissons, Sauces</div>
+                  </div>
+                </div>
+
+                <div className="restaurant-floating-badge restaurant-badge-2">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Zap size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Envoi Cuisine Immédiat</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Impression ou Écran KDS</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Sans aucun délai ni papier perdu</div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {restaurantCaptureTab === 'receipt' && (
+              <>
+                <div className="restaurant-floating-badge restaurant-badge-1">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(234, 88, 12, 0.2)', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Smartphone size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#ea580c', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Bankily Validé</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>+1 450 MRU Reçu Instantanément</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Notification SMS & QR Code client</div>
+                  </div>
+                </div>
+
+                <div className="restaurant-floating-badge restaurant-badge-2">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>🧾 Ticket Légal NIF / TVA 16%</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Imprimante Thermique 80mm</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Conforme réglementation Mauritanie</div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Bandeau d'information sous la capture avec 3 piliers */}
+          <div style={{
+            background: 'var(--bg-card)',
+            borderTop: '1px solid var(--border-glass)',
+            padding: '20px 24px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '16px',
+            alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <UtensilsCrossed size={20} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>Plan de Salle Sur-Mesure</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Glissez-déposez vos tables (VIP, Terrasse, Salons)</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(234, 88, 12, 0.12)', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ChefHat size={20} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>KDS Cuisine Connecté</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Chronomètres de cuisson et alertes de retard</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Smartphone size={20} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>Prise de Commande Mobile</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Serveurs équipés de téléphones ou tablettes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* 4. LIVE INTERACTIVE SHOWCASE (TABBED PRODUCT PREVIEWS) */}
       <section style={{
@@ -1699,41 +1985,114 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
 
-      {/* 6. CALCULATEUR DE PRIX DYNAMIQUE AVEC SLIDER (MODÈLE CAISSA.TN) */}
-      <section id="pricing" style={{ padding: '60px 24px', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <span style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
-            Tarification 100% Transparente
-          </span>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 10px' }}>
-            Abonnez-vous à la Journée selon Vos Besoins
+      {/* 6. CALCULATEUR DE PRIX DYNAMIQUE ULTRA-ATTIRANT AVEC ANIMATIONS & DESIGN PREMIUM */}
+      <section id="pricing" style={{ padding: '70px 24px', maxWidth: '1060px', margin: '0 auto', width: '100%', position: 'relative' }}>
+        {/* Glow Orb en arrière-plan */}
+        <div style={{
+          position: 'absolute',
+          top: '30%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '600px',
+          height: '350px',
+          background: 'radial-gradient(ellipse, rgba(16, 185, 129, 0.18) 0%, rgba(0, 98, 51, 0.05) 50%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+          zIndex: 0
+        }} />
+
+        <div style={{ textAlign: 'center', marginBottom: '36px', position: 'relative', zIndex: 1 }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(16, 185, 129, 0.12)',
+            border: '1px solid rgba(16, 185, 129, 0.35)',
+            padding: '6px 16px',
+            borderRadius: '999px',
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            color: '#10b981',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            marginBottom: '12px'
+          }}>
+            <Sparkles size={14} />
+            <span>Tarification 100% Transparente • Facturée en Ouguiya (MRU)</span>
+          </div>
+
+          <h2 style={{ fontSize: 'clamp(1.9rem, 3.8vw, 2.7rem)', fontWeight: 900, letterSpacing: '-0.02em', margin: '0 0 10px' }}>
+            Abonnez-vous à la Journée selon{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #006233 0%, #16a34a 50%, #10b981 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              display: 'inline-block'
+            }}>
+              Vos Vrais Besoins
+            </span>
           </h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-            Pas d'engagement à long terme, pas de frais cachés. Réglez facilement par Bankily ou Masrvi.
+          <p style={{ fontSize: '0.98rem', color: 'var(--text-muted)', maxWidth: '680px', margin: '0 auto', lineHeight: '1.6' }}>
+            Sans engagement à long terme. Choisissez la durée exacte de votre activité. Règlement direct et instantané par <strong style={{ color: '#ea580c' }}>Bankily</strong> ou <strong style={{ color: '#2563eb' }}>Masrvi</strong>.
           </p>
         </div>
 
-        <div className="glass-panel" style={{
-          padding: '36px',
-          borderRadius: 'var(--radius-xl)',
-          border: '1px solid var(--border-glass)',
-          boxShadow: 'var(--shadow-lg)'
-        }}>
-          {/* Slider Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+        {/* Boîte Principale Ultra-Pro Glassmorphism */}
+        <div className="pricing-pro-container" style={{ padding: 'clamp(24px, 5vw, 44px)', position: 'relative', zIndex: 1 }}>
+          {/* Header avec Durée et Prix Journalier Animé */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            marginBottom: '24px',
+            flexWrap: 'wrap',
+            gap: '16px',
+            borderBottom: '1px solid var(--border-glass)',
+            paddingBottom: '20px'
+          }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 700 }}>DURÉE DE L'ABONNEMENT CHOISIE</div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent-primary)' }}>
-                {subscriptionDays} <span style={{ fontSize: '1.1rem', color: 'var(--text-main)' }}>Jours</span>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Durée de l'Abonnement Choisie
+              </div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '2px' }}>
+                <span style={{
+                  background: 'linear-gradient(135deg, #10b981, #22c55e)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
+                  {subscriptionDays}
+                </span>
+                <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: 700 }}>Jours</span>
+                <span style={{
+                  fontSize: '0.75rem',
+                  padding: '3px 10px',
+                  borderRadius: '999px',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  color: '#10b981',
+                  fontWeight: 800
+                }}>
+                  {subscriptionDays >= 365 ? '1 An Complet' : subscriptionDays >= 180 ? '6 Mois' : subscriptionDays >= 90 ? '1 Trimestre' : `${subscriptionDays} jours`}
+                </span>
               </div>
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 700 }}>PRIX PAR JOUR</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-emerald)' }}>
-                {effectiveRate.toFixed(1)} <span style={{ fontSize: '0.85rem' }}>MRU / jour</span>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Tarif Journalier Effectif
+              </div>
+              <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', marginTop: '2px' }}>
+                <span>{effectiveRate.toFixed(1)}</span>
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 700 }}>MRU / jour</span>
                 {discountPct > 0 && (
-                  <span style={{ marginLeft: '8px', fontSize: '0.75rem', background: 'rgba(16, 185, 129, 0.2)', padding: '2px 6px', borderRadius: '4px' }}>
+                  <span style={{
+                    fontSize: '0.76rem',
+                    background: 'linear-gradient(135deg, #ea580c, #f59e0b)',
+                    color: '#ffffff',
+                    padding: '3px 9px',
+                    borderRadius: '8px',
+                    fontWeight: 900,
+                    boxShadow: '0 2px 8px rgba(234, 88, 12, 0.4)'
+                  }}>
                     -{discountPct}%
                   </span>
                 )}
@@ -1741,83 +2100,133 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Interactive Range Slider */}
-          <input
-            type="range"
-            min="1"
-            max="365"
-            value={subscriptionDays}
-            onChange={(e) => setSubscriptionDays(parseInt(e.target.value))}
-            style={{
-              width: '100%',
-              height: '8px',
-              borderRadius: '999px',
-              background: 'linear-gradient(90deg, #059669 0%, #10b981 100%)',
-              cursor: 'pointer',
-              marginBottom: '20px'
-            }}
-          />
+          {/* Interactive Range Slider Stylé avec barre dynamique */}
+          <div style={{ marginBottom: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '8px' }}>
+              <span>1 Jour</span>
+              <span>90 Jours (3 Mois)</span>
+              <span>180 Jours (6 Mois)</span>
+              <span>365 Jours (1 An)</span>
+            </div>
 
-          {/* Quick Presets */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '24px' }}>
-            {[
-              { days: 30, label: '1 Mois', discount: 'Tarif standard' },
-              { days: 90, label: '3 Mois', discount: '-33% (10 MRU/j)' },
-              { days: 180, label: '6 Mois', discount: '-43% (8.5 MRU/j)' },
-              { days: 365, label: '1 An', discount: '-50% (7.5 MRU/j)' }
-            ].map(p => (
-              <button
-                key={p.days}
-                onClick={() => setSubscriptionDays(p.days)}
-                style={{
-                  background: subscriptionDays === p.days ? 'var(--accent-gradient)' : 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-glass)',
-                  color: subscriptionDays === p.days ? '#fff' : 'var(--text-muted)',
-                  padding: '10px 8px',
-                  borderRadius: 'var(--radius-md)',
-                  fontWeight: 700,
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}
-              >
-                <div>{p.label}</div>
-                <div style={{ fontSize: '0.65rem', opacity: 0.85, marginTop: '2px' }}>{p.discount}</div>
-              </button>
-            ))}
+            <input
+              type="range"
+              min="1"
+              max="365"
+              value={subscriptionDays}
+              onChange={(e) => setSubscriptionDays(parseInt(e.target.value))}
+              className="pricing-range-custom"
+              style={{
+                background: `linear-gradient(90deg, #10b981 0%, #059669 ${((subscriptionDays - 1) / 364) * 100}%, var(--border-glass) ${((subscriptionDays - 1) / 364) * 100}%, var(--border-glass) 100%)`
+              }}
+            />
           </div>
 
-          {/* Pricing Total Box */}
+          {/* Cartes Préréglées (Quick Presets) avec Badges & Animations */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+            {[
+              { days: 30, label: '1 Mois', icon: '🥉', discount: 'Tarif standard (15 MRU/j)', badge: 'Formule Découverte', isBest: false },
+              { days: 90, label: '3 Mois', icon: '🥈', discount: '-33% (10 MRU/j)', badge: 'Populaire', isBest: false },
+              { days: 180, label: '6 Mois', icon: '🥇', discount: '-43% (8.5 MRU/j)', badge: 'Économique', isBest: false },
+              { days: 365, label: '1 An', icon: '👑', discount: '-50% (7.5 MRU/j)', badge: '⭐ MEILLEURE OFFRE', isBest: true }
+            ].map(p => {
+              const active = subscriptionDays === p.days;
+              return (
+                <div
+                  key={p.days}
+                  onClick={() => setSubscriptionDays(p.days)}
+                  className={`pricing-preset-card ${active ? 'active' : ''}`}
+                  style={{
+                    border: active ? '2px solid #10b981' : p.isBest ? '1.5px solid rgba(245, 158, 11, 0.4)' : undefined
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '1.2rem' }}>{p.icon}</span>
+                    <span style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 900,
+                      padding: '2px 8px',
+                      borderRadius: '999px',
+                      background: active ? 'rgba(255, 255, 255, 0.25)' : p.isBest ? 'rgba(245, 158, 11, 0.18)' : 'var(--bg-card)',
+                      color: active ? '#ffffff' : p.isBest ? '#f59e0b' : 'var(--text-dim)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em'
+                    }}>
+                      {p.badge}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    {p.label}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', opacity: active ? 0.95 : 0.75, marginTop: '4px', fontWeight: 600 }}>
+                    {p.discount}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Pricing Total Box Premium avec Shimmer & Logos Bankily / Masrvi */}
           <div style={{
             background: 'var(--bg-tertiary)',
-            padding: '20px',
-            borderRadius: 'var(--radius-lg)',
+            border: '1.5px solid var(--border-glass)',
+            padding: '28px',
+            borderRadius: '20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            gap: '16px'
+            gap: '24px'
           }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Total Net à Régler :</div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                {calculatedTotal.toLocaleString('fr-FR')} <span style={{ fontSize: '1rem', color: 'var(--accent-emerald)' }}>MRU</span>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Total Net Garanti à Régler
               </div>
-              {savings > 0 && (
-                <div style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: 700 }}>
-                  ✓ Vous économisez {savings.toLocaleString('fr-FR')} MRU sur cette formule
+              <div style={{ fontSize: '2.8rem', fontWeight: 900, color: 'var(--text-main)', lineHeight: '1.1', marginTop: '4px', display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <span>{calculatedTotal.toLocaleString('fr-FR')}</span>
+                <span style={{ fontSize: '1.2rem', color: 'var(--accent-emerald)', fontWeight: 800 }}>MRU</span>
+              </div>
+              {savings > 0 ? (
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  marginTop: '8px',
+                  fontSize: '0.78rem',
+                  color: '#10b981',
+                  fontWeight: 800,
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  padding: '4px 12px',
+                  borderRadius: '999px'
+                }}>
+                  <CheckCircle2 size={14} />
+                  <span>Vous économisez {savings.toLocaleString('fr-FR')} MRU sur cette durée (-{discountPct}%)</span>
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '6px' }}>
+                  Tarif standard journalier sans engagement
                 </div>
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
               <button
                 onClick={() => onEnterApp('pricing')}
-                className="btn-primary"
-                style={{ padding: '12px 24px', fontWeight: 800, fontSize: '0.9rem' }}
+                className="btn-pricing-shimmer"
               >
-                Payer par Bankily ou Masrvi ➔
+                <span>Payer par Bankily ou Masrvi</span>
+                <ArrowRight size={18} />
               </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <ShieldCheck size={14} color="#10b981" /> Activation Instantanée
+                </span>
+                <span>•</span>
+                <span>Sans frais cachés</span>
+                <span>•</span>
+                <span>Support 24/7 Mauritanie</span>
+              </div>
             </div>
           </div>
         </div>
