@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Caissa.mr — Brochure A4</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@page { size: 210mm 297mm; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #ffffff;
+  color: #1e293b;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ============================
+   STRUCTURE DE PAGE
+   ============================ */
+.page {
+  width: 210mm;
+  height: 297mm;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20mm;
+}
+
+/* ============================
+   TYPOGRAPHIE & COULEURS
+   ============================ */
+h1, h2, h3, h4 { color: #0f172a; line-height: 1.2; }
+p { font-size: 13px; color: #475569; line-height: 1.6; }
+
+.accent { color: #10b981; }
+.bg-dark { background: #0f172a; color: white; }
+.bg-light { background: #f8fafc; }
+
+/* ============================
+   PAGE DE COUVERTURE
+   ============================ */
+.cover-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25mm;
+}
+.cover-header img { width: 40px; height: 40px; border-radius: 10px; }
+.cover-header span { font-size: 24px; font-weight: 800; }
+
+.cover-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cover-title {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+}
+.cover-desc {
+  font-size: 16px;
+  color: #94a3b8;
+  max-width: 80%;
+  line-height: 1.6;
+  margin-bottom: 30mm;
+}
+
+.cover-image-box {
+  width: 100%;
+  height: 90mm;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  position: relative;
+}
+.cover-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.cover-footer {
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 15px;
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ============================
+   PAGES INTERNES - HEADER & FOOTER
+   ============================ */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15mm;
+  padding-bottom: 5mm;
+  border-bottom: 2px solid #f1f5f9;
+}
+.header-left h3 { font-size: 12px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.header-left h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.header-right { display: flex; align-items: center; gap: 8px; opacity: 0.6; }
+.header-right img { width: 20px; border-radius: 5px; }
+.header-right span { font-size: 12px; font-weight: 800; }
+
+.footer {
+  margin-top: auto;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ============================
+   COMPOSANTS DE CONTENU
+   ============================ */
+.intro-text {
+  font-size: 15px;
+  color: #334155;
+  line-height: 1.6;
+  margin-bottom: 15mm;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15mm 10mm;
+}
+
+.feature-item h4 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.feature-item p { font-size: 12px; }
+
+/* Large Image Mockup */
+.mockup-large {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  margin-bottom: 10mm;
+}
+.mockup-bar {
+  background: #f1f5f9;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.mockup-dots { display: flex; gap: 5px; }
+.mockup-dot { width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; }
+.mockup-large img {
+  width: 100%;
+  display: block;
+}
+
+/* Dual Mockups */
+.mockup-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10mm;
+  margin-bottom: 10mm;
+}
+.mockup-row .mockup-large { margin-bottom: 0; }
+
+/* Callout Box */
+.callout {
+  background: #f0fdf4;
+  border-left: 4px solid #10b981;
+  padding: 15px 20px;
+  margin-bottom: 10mm;
+  border-radius: 0 8px 8px 0;
+}
+.callout h4 { color: #15803d; font-size: 14px; margin-bottom: 5px; }
+.callout p { color: #166534; font-size: 12px; }
+
+/* Roadmap Cards */
+.roadmap-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+.roadmap-card.active { border-color: #10b981; background: #f0fdf4; }
+.roadmap-icon { font-size: 24px; }
+.roadmap-text h4 { font-size: 14px; margin-bottom: 4px; }
+
+</style>
+</head>
+<body>
+
+<!-- ==============================================
+     PAGE 1 : COUVERTURE
+     ============================================== -->
+<div class="page bg-dark">
+  <div class="page-inner">
+    <div class="cover-header">
+      <img src="file:///C:/SAAS/frontend/public/favicon.svg" alt="Caissa Logo">
+      <span>Caissa<span class="accent">.mr</span></span>
+    </div>
+    
+    <div class="cover-hero">
+      <div class="cover-title">
+        La Première Solution POS SaaS<br>
+        100% Mauritanienne
+      </div>
+      <div class="cover-desc">
+        Encaissements Bankily, gestion du Kridi (الكريدي), et fonctionnement hors-ligne garanti. Une plateforme premium conçue pour digitaliser les commerces de Nouakchott.
+      </div>
+      
+      <div class="cover-image-box">
+        <img src="file:///C:/SAAS/frontend/public/screenshots/pos_restaurant_screen_photos.png" alt="Caissa Interface">
+      </div>
+    </div>
+    
+    <div class="cover-footer">
+      <span>Dossier de Présentation & Partenariat</span>
+      <span>Préparé pour Si Taha</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE 2 : CONTEXTE & SOLUTION
+     ============================================== -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header">
+      <div class="header-left">
+        <h3>Vision</h3>
+        <h2>Le Marché & La Solution</h2>
+      </div>
+      <div class="header-right"><img src="file:///C:/SAAS/frontend/public/favicon.svg"><span>Caissa.mr</span></div>
+    </div>
+    
+    <p class="intro-text">
+      Le marché mauritanien est en pleine transformation numérique, pourtant plus de 90% des commerces de proximité (restaurants, épiceries, boutiques) fonctionnent encore avec des processus manuels ou des caisses inadaptées.
+    </p>
+
+    <div class="callout" style="background: #fef2f2; border-color: #ef4444;">
+      <h4 style="color: #b91c1c;">Le Problème Actuel</h4>
+      <p style="color: #991b1b;">Les logiciels étrangers coûtent cher, dépendent d'une connexion internet instable, et surtout, n'intègrent ni les paiements locaux (Bankily, Masrvi) ni la gestion du crédit client (Kridi).</p>
+    </div>
+
+    <div class="callout">
+      <h4>La Solution Caissa.mr</h4>
+      <p>Un logiciel SaaS moderne, accessible depuis n'importe quelle tablette ou PC. Il garantit une continuité de service à 100% (Offline-First) et intègre nativement toutes les spécificités du marché mauritanien.</p>
+    </div>
+
+    <div class="feature-grid" style="margin-top: 20mm;">
+      <div class="feature-item">
+        <h4><span class="accent">✔</span> 100% Hors-Ligne</h4>
+        <p>Toutes les données sont stockées localement (IndexedDB) pour résister aux coupures internet.</p>
+      </div>
+      <div class="feature-item">
+        <h4><span class="accent">✔</span> Modèle SaaS</h4>
+        <p>Abonnement mensuel abordable générant des revenus récurrents et prévisibles (MRR).</p>
+      </div>
+      <div class="feature-item">
+        <h4><span class="accent">✔</span> Matériel Flexible</h4>
+        <p>Fonctionne sur iPad, tablettes Android, ou PC existants. Compatible douchettes et imprimantes.</p>
+      </div>
+      <div class="feature-item">
+        <h4><span class="accent">✔</span> Multi-Secteurs</h4>
+        <p>S'adapte automatiquement : Restauration, Retail, Alimentation, et Services (Salons).</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Dossier Confidentiel</span>
+      <span>02</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE 3 : PRISE DE COMMANDE (PRIORITÉ 1)
+     ============================================== -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header">
+      <div class="header-left">
+        <h3>Fonctionnalité Clé</h3>
+        <h2>1. Prise de Commande Tactile</h2>
+      </div>
+      <div class="header-right"><img src="file:///C:/SAAS/frontend/public/favicon.svg"><span>Caissa.mr</span></div>
+    </div>
+    
+    <p class="intro-text">
+      Pensée pour l'efficacité absolue. L'interface tactile est visuelle (photos haute définition), réactive et permet d'encaisser un client en moins de 10 secondes.
+    </p>
+
+    <div class="mockup-large">
+      <div class="mockup-bar"><div class="mockup-dots"><span class="mockup-dot"></span><span class="mockup-dot"></span><span class="mockup-dot"></span></div></div>
+      <img src="file:///C:/SAAS/frontend/public/screenshots/prise_de_commande.png" style="height: 110mm; object-fit: cover; object-position: top;">
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-item">
+        <h4>📱 Interface Visuelle</h4>
+        <p>Grandes photos produits pour réduire les erreurs de saisie et faciliter la formation du personnel.</p>
+      </div>
+      <div class="feature-item">
+        <h4>⚙️ Modale Variantes</h4>
+        <p>Gestion ultra-rapide des cuissons (saignant, à point) et des suppléments payants.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Dossier Confidentiel</span>
+      <span>03</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE 4 : RESTAURATION PRO (KDS & TABLES)
+     ============================================== -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header">
+      <div class="header-left">
+        <h3>Restauration Pro</h3>
+        <h2>2. Plan de Salle & KDS Cuisine</h2>
+      </div>
+      <div class="header-right"><img src="file:///C:/SAAS/frontend/public/favicon.svg"><span>Caissa.mr</span></div>
+    </div>
+    
+    <p class="intro-text">
+      Une synchronisation parfaite entre la salle et la cuisine. Finis les bons papier perdus ou illisibles, tout est numérisé en temps réel.
+    </p>
+
+    <div class="mockup-row">
+      <div class="mockup-large">
+        <div class="mockup-bar"><div class="mockup-dots"><span class="mockup-dot"></span><span class="mockup-dot"></span></div></div>
+        <img src="file:///C:/SAAS/frontend/public/screenshots/tables_restaurant_screen_1791315425516.png" style="height: 90mm; object-fit: cover; object-position: top;">
+      </div>
+      <div class="mockup-large">
+        <div class="mockup-bar"><div class="mockup-dots"><span class="mockup-dot"></span><span class="mockup-dot"></span></div></div>
+        <img src="file:///C:/SAAS/frontend/public/screenshots/kds_restaurant_screen_1791315455733.png" style="height: 90mm; object-fit: cover; object-position: top;">
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-item">
+        <h4>🗺️ Plan de Salle</h4>
+        <p>Vue graphique de l'état des tables. Transfert de commandes d'une table à l'autre en un glissement.</p>
+      </div>
+      <div class="feature-item">
+        <h4>👨‍🍳 Écran KDS Cuisine</h4>
+        <p>Les cuisiniers reçoivent les bons numérisés avec chronomètres et avertissent les serveurs d'un clic.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Dossier Confidentiel</span>
+      <span>04</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE 5 : BOUTIQUE & KRIDI
+     ============================================== -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header">
+      <div class="header-left">
+        <h3>Commerce de Détail</h3>
+        <h2>3. Mode Boutique & Carnet "Kridi"</h2>
+      </div>
+      <div class="header-right"><img src="file:///C:/SAAS/frontend/public/favicon.svg"><span>Caissa.mr</span></div>
+    </div>
+    
+    <p class="intro-text">
+      La solution intègre le scan de codes-barres pour les supérettes et résout le plus grand défi des commerces locaux : la gestion saine du crédit client (الكريدي).
+    </p>
+
+    <div class="mockup-row">
+      <div class="mockup-large">
+        <div class="mockup-bar"><div class="mockup-dots"><span class="mockup-dot"></span><span class="mockup-dot"></span></div></div>
+        <img src="file:///C:/SAAS/frontend/public/screenshots/pos_boutique_demo_1791314735684.png" style="height: 80mm; object-fit: cover; object-position: top;">
+      </div>
+      <div class="mockup-large">
+        <div class="mockup-bar"><div class="mockup-dots"><span class="mockup-dot"></span><span class="mockup-dot"></span></div></div>
+        <img src="file:///C:/SAAS/frontend/public/screenshots/pos_ticket_cart.png" style="height: 80mm; object-fit: cover; object-position: top;">
+      </div>
+    </div>
+
+    <div class="callout">
+      <h4>📖 Le Carnet Kridi Électronique</h4>
+      <p>Chaque client possède une fiche avec son plafond de dette. Le solde est mis à jour en temps réel à chaque achat. Fini les carnets égarés et les contestations : un relevé clair peut être imprimé à tout moment.</p>
+    </div>
+
+    <div class="footer">
+      <span>Dossier Confidentiel</span>
+      <span>05</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE 6 : PAIEMENTS & TICKETS
+     ============================================== -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header">
+      <div class="header-left">
+        <h3>Conformité</h3>
+        <h2>4. Paiements & Tickets Thermiques</h2>
+      </div>
+      <div class="header-right"><img src="file:///C:/SAAS/frontend/public/favicon.svg"><span>Caissa.mr</span></div>
+    </div>
+    
+    <p class="intro-text">
+      L'encaissement est sécurisé, rapide et conforme aux normes fiscales. Les paiements locaux sont intégrés nativement.
+    </p>
+
+    <div class="mockup-row">
+      <div class="mockup-large">
+        <div class="mockup-bar"><div class="mockup-dots"><span class="mockup-dot"></span></div></div>
+        <img src="file:///C:/SAAS/frontend/public/screenshots/payment_receipt_success_1791318272048.png" style="height: 90mm; object-fit: cover; object-position: top;">
+      </div>
+      <div class="mockup-large" style="background: #f1f5f9; display:flex; justify-content:center; align-items:center;">
+        <img src="file:///C:/SAAS/frontend/public/screenshots/ticket_details.png" style="width: auto; height: 90mm; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-item">
+        <h4>💳 Bankily & Masrvi</h4>
+        <p>Encaissement en 1 clic sans avoir à vérifier manuellement les SMS de confirmation.</p>
+      </div>
+      <div class="feature-item">
+        <h4>🧾 Reçus Professionnels</h4>
+        <p>Impression thermique (58/80mm) avec NIF, détail de la TVA (16%), et monnaie rendue calculée automatiquement.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Dossier Confidentiel</span>
+      <span>06</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE 7 : ROADMAP & COLLABORATION
+     ============================================== -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header">
+      <div class="header-left">
+        <h3>Stratégie</h3>
+        <h2>Avancement & Collaboration</h2>
+      </div>
+      <div class="header-right"><img src="file:///C:/SAAS/frontend/public/favicon.svg"><span>Caissa.mr</span></div>
+    </div>
+    
+    <div class="callout" style="margin-bottom: 5mm;">
+      <h4>État du Projet : 80% Achevés</h4>
+      <p>L'ensemble de l'interface (Frontend) et de la logique métier (caisse, hors-ligne, design) est fully opérationnel. Les 20% restants sont la connexion à la base de données distante (Backend) et le lancement des pilotes.</p>
+    </div>
+
+    <h3 style="font-size: 16px; margin: 10mm 0 5mm; color: #0f172a;">Propositions de Collaboration</h3>
+
+    <div class="roadmap-card active">
+      <div class="roadmap-icon">💎</div>
+      <div class="roadmap-text">
+        <h4 style="color: #15803d;">1. Investisseur Stratégique (Recommandé)</h4>
+        <p>Entrée en capital pour financer le déploiement massif à Nouakchott (forces de vente, stock matériel) et capturer rapidement le marché avec une forte rentabilité à terme.</p>
+      </div>
+    </div>
+    
+    <div class="roadmap-card">
+      <div class="roadmap-icon">🤝</div>
+      <div class="roadmap-text">
+        <h4>2. Partenaire Commercial</h4>
+        <p>Distribution exclusive de la solution auprès de votre réseau de commerces, avec un modèle de partage des revenus (commissions récurrentes sur les abonnements).</p>
+      </div>
+    </div>
+    
+    <div class="roadmap-card">
+      <div class="roadmap-icon">⭐</div>
+      <div class="roadmap-text">
+        <h4>3. Client Pilote VIP</h4>
+        <p>Équipement prioritaire de vos propres établissements à un tarif préférentiel, vous permettant de moderniser votre gestion avec un support technique dédié.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: auto; padding: 15px; background: #0f172a; color: white; border-radius: 10px; text-align: center;">
+      <h3 style="font-size: 16px; margin-bottom: 5px; color: white;">Testez la plateforme en direct (Mobile & PC)</h3>
+      <p style="font-size: 14px; color: #34d399; font-weight: 700;">https://caissa-mr.vercel.app</p>
+    </div>
+
+    <div class="footer" style="margin-top: 5mm;">
+      <span>Dossier Confidentiel</span>
+      <span>07</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
