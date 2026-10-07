@@ -730,7 +730,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   : restaurantCaptureTab === 'kds'
                   ? '/screenshots/kds_restaurant_screen_1791315455733.png'
                   : restaurantCaptureTab === 'pos'
-                  ? '/screenshots/pos_restaurant_screen_1791315364889.png'
+                  ? '/screenshots/pos_restaurant_screen_photos.png'
                   : '/screenshots/payment_receipt_success_1791318272048.png'
               }
               alt="Capture Système Restaurant Caissa"
@@ -799,25 +799,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             {restaurantCaptureTab === 'pos' && (
               <>
-                <div className="restaurant-floating-badge restaurant-badge-1">
+                <div className="restaurant-floating-badge" style={{ bottom: '30px', left: '30px' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Store size={18} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Prise de Commande Rapide</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Photos HD & Suppléments Mauritanie</div>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Thé (3 verres), Cuissons, Sauces</div>
+                    <div style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Prise de Commande Tactile</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Photos HD & Plats Traditionnels</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Thieb, Méchoui, Chwaya, Atay mauritanien</div>
                   </div>
                 </div>
 
-                <div className="restaurant-floating-badge restaurant-badge-2">
+                <div className="restaurant-floating-badge" style={{ bottom: '30px', right: '30px' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Zap size={18} />
                   </div>
                   <div>
                     <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Envoi Cuisine Immédiat</div>
                     <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Impression ou Écran KDS</div>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Sans aucun délai ni papier perdu</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Affectation directe à la Table 1</div>
                   </div>
                 </div>
               </>
