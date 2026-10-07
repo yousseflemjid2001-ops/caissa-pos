@@ -1250,37 +1250,108 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 5. SECTEURS D'ACTIVITÉ PRÉCONFIGURÉS */}
+      {/* 5. SECTEURS D'ACTIVITÉ PRÉCONFIGURÉS AVEC DESIGN & ANIMATIONS PRO */}
       <section id="sectors" style={{
-        padding: '50px 24px',
+        padding: '70px 24px',
         background: 'var(--bg-secondary)',
         borderTop: '1px solid var(--border-glass)',
-        borderBottom: '1px solid var(--border-glass)'
+        borderBottom: '1px solid var(--border-glass)',
+        position: 'relative'
       }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <span style={{ color: '#22c55e', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
-              Solutions Métiers Adaptées
-            </span>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 10px' }}>
-              Une Caisse Préconfigurée pour Chaque Commerce en Mauritanie
+        <div style={{ maxWidth: '1260px', margin: '0 auto' }}>
+          {/* Section Header */}
+          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              padding: '6px 16px',
+              borderRadius: '999px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              color: '#10b981',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              marginBottom: '12px'
+            }}>
+              <Sparkles size={14} />
+              <span>Solutions Métiers Adaptées • 100% Modulaire</span>
+            </div>
+
+            <h2 style={{ fontSize: 'clamp(1.9rem, 3.8vw, 2.7rem)', fontWeight: 900, margin: '6px 0 12px', letterSpacing: '-0.02em', color: 'var(--text-main)' }}>
+              Une Caisse Préconfigurée pour{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #006233 0%, #16a34a 50%, #10b981 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block'
+              }}>
+                Chaque Commerce en Mauritanie
+              </span>
             </h2>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-              Basculez d'un secteur à l'autre en un clic sans réinstallation.
+            <p style={{ fontSize: '0.98rem', color: 'var(--text-muted)', maxWidth: '700px', margin: '0 auto', lineHeight: '1.6' }}>
+              Basculez d'un secteur à l'autre en un clic sans réinstallation. Chaque mode active les outils spécifiques dont votre équipe a besoin.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
-            {/* Restauration */}
-            <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'rgba(5, 150, 105, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', marginBottom: '16px' }}>
-                <UtensilsCrossed size={22} />
+          {/* Grid des 4 cartes métiers Pro */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '22px' }}>
+            {/* 1. Restauration & Chwaya */}
+            <div
+              className="sector-card-pro"
+              style={{
+                ['--sector-accent' as any]: '#059669',
+                ['--sector-shadow' as any]: 'rgba(5, 150, 105, 0.35)',
+                border: '1.5px solid rgba(5, 150, 105, 0.3)'
+              }}
+            >
+              <div>
+                {/* Top Badge & Icon */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <div className="sector-icon-orb" style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(16, 185, 129, 0.1))', color: '#10b981', border: '1px solid rgba(5, 150, 105, 0.3)' }}>
+                    <UtensilsCrossed size={26} />
+                  </div>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 900,
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    background: 'linear-gradient(135deg, #006233, #16a34a)',
+                    color: '#ffffff',
+                    letterSpacing: '0.04em',
+                    boxShadow: '0 2px 8px rgba(5, 150, 105, 0.3)'
+                  }}>
+                    👑 LE PLUS CHOISI
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                  Restauration & Chwaya
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.55', marginBottom: '18px' }}>
+                  Plan de salle en direct, envoi cuisine KDS, gestion des cuissons de grillades et suppléments Atay mauritanien.
+                </p>
+
+                {/* Micro Checklist */}
+                <div style={{ marginBottom: '22px' }}>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#10b981" />
+                    <span>Plan de Tables 2D & Salons VIP</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#10b981" />
+                    <span>Écran KDS Cuisine & Chrono Cuisson</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#10b981" />
+                    <span>Partage d'Addition & Rendu Monnaie</span>
+                  </div>
+                </div>
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '8px' }}>Restauration & Chwaya</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '14px' }}>
-                Gestion de tables, cuisson de grillades, bons cuisine KDS, boissons et desserts.
-              </p>
-              <button 
+
+              <button
                 onClick={() => {
                   setSector('restaurant');
                   if (account) {
@@ -1291,74 +1362,210 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     onEnterApp('pos');
                   }
                 }}
-                className="btn-primary" 
+                className="sector-btn-action"
                 style={{
-                  width: '100%',
-                  fontSize: '0.82rem',
-                  padding: '10px',
-                  fontWeight: 800,
-                  background: '#059669',
-                  boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)'
+                  background: 'linear-gradient(135deg, #006233 0%, #16a34a 100%)',
+                  color: '#ffffff',
+                  boxShadow: '0 4px 14px rgba(22, 163, 74, 0.4)'
                 }}
               >
-                {account ? 'Accéder à ma Caisse Restaurant ➔' : 'Créer Compte Restaurant (Essai 14j) ➔'}
+                <span>{account ? 'Accéder Mode Restaurant' : 'Créer Compte Restaurant (14j)'}</span>
+                <ArrowRight size={16} />
               </button>
             </div>
 
-            {/* Hanout / Boutique */}
-            <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', marginBottom: '16px' }}>
-                <ShoppingBag size={22} />
+            {/* 2. Boutique, Épicerie & Hanout */}
+            <div
+              className="sector-card-pro"
+              style={{
+                ['--sector-accent' as any]: '#10b981',
+                ['--sector-shadow' as any]: 'rgba(16, 185, 129, 0.35)'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <div className="sector-icon-orb" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.08))', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                    <ShoppingBag size={26} />
+                  </div>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    color: '#10b981'
+                  }}>
+                    ⚡ 100% CODE-BARRES
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                  Boutique, Épicerie & Hanout
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.55', marginBottom: '18px' }}>
+                  Lecture douchette ultra-rapide, carnet de crédit Kridi (الكريدي) avec plafonds et alertes de rupture de stock.
+                </p>
+
+                <div style={{ marginBottom: '22px' }}>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#10b981" />
+                    <span>Scan code-barres & Articles illimités</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#10b981" />
+                    <span>Carnet Kridi avec SMS de relance</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#10b981" />
+                    <span>Rapprochement Bankily & Masrvi</span>
+                  </div>
+                </div>
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '8px' }}>Boutique, Épicerie & Hanout</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '14px' }}>
-                Lecture code-barres rapide, carnet kridi client, gestion des stocks et alertes ruptures.
-              </p>
-              <button 
+
+              <button
                 onClick={() => {
                   setSector('market');
                   onEnterApp('pos');
                 }}
-                className="btn-secondary" 
-                style={{ width: '100%', fontSize: '0.8rem', padding: '8px' }}
+                className="sector-btn-action"
+                style={{
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-glass)',
+                  color: 'var(--text-main)'
+                }}
               >
-                {account ? 'Accéder Mode Boutique ➔' : 'Tester Mode Boutique (Démo) ➔'}
+                <span>Tester Mode Boutique (Démo)</span>
+                <ArrowRight size={16} />
               </button>
             </div>
 
-            {/* Boucherie / Poissonnerie */}
-            <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'rgba(217, 119, 6, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', marginBottom: '16px' }}>
-                <Scale size={22} />
+            {/* 3. Boucherie, Poisson & Vrac */}
+            <div
+              className="sector-card-pro"
+              style={{
+                ['--sector-accent' as any]: '#d97706',
+                ['--sector-shadow' as any]: 'rgba(217, 119, 6, 0.35)'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <div className="sector-icon-orb" style={{ background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.08))', color: '#d97706', border: '1px solid rgba(217, 119, 6, 0.3)' }}>
+                    <Scale size={26} />
+                  </div>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    background: 'rgba(217, 119, 6, 0.15)',
+                    color: '#d97706'
+                  }}>
+                    ⚖️ VENTE AU KG
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                  Boucherie, Poisson & Vrac
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.55', marginBottom: '18px' }}>
+                  Articles vendus au poids (Viande Chameau, Agneau, Thiof). Pesée intégrée avec calcul automatique du prix/kg.
+                </p>
+
+                <div style={{ marginBottom: '22px' }}>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#d97706" />
+                    <span>Calculateur tare & prix au kilogramme</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#d97706" />
+                    <span>Impression ticket avec poids exact</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#d97706" />
+                    <span>Suivi des pertes & marges nettes</span>
+                  </div>
+                </div>
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '8px' }}>Boucherie, Poisson & Vrac</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '14px' }}>
-                Articles vendus au kilogramme (Viande Chameau, Agneau, Thiof), pesée intégrée et calcul prix/poids.
-              </p>
-              <button 
-                onClick={() => { setSector('market'); onEnterApp('pos'); }}
-                className="btn-secondary" 
-                style={{ width: '100%', fontSize: '0.8rem', padding: '8px' }}
+
+              <button
+                onClick={() => {
+                  setSector('market');
+                  onEnterApp('pos');
+                }}
+                className="sector-btn-action"
+                style={{
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-glass)',
+                  color: 'var(--text-main)'
+                }}
               >
-                {account ? 'Accéder Mode Pesée ➔' : 'Tester Mode Pesée (Démo) ➔'}
+                <span>Tester Mode Pesée (Démo)</span>
+                <ArrowRight size={16} />
               </button>
             </div>
 
-            {/* Parapharmacie & Cosmétique */}
-            <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'rgba(2, 132, 199, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0284c7', marginBottom: '16px' }}>
-                <ShieldCheck size={22} />
+            {/* 4. Cosmétiques & Parapharmacie */}
+            <div
+              className="sector-card-pro"
+              style={{
+                ['--sector-accent' as any]: '#0284c7',
+                ['--sector-shadow' as any]: 'rgba(2, 132, 199, 0.35)'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <div className="sector-icon-orb" style={{ background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(56, 189, 248, 0.08))', color: '#0284c7', border: '1px solid rgba(2, 132, 199, 0.3)' }}>
+                    <ShieldCheck size={26} />
+                  </div>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    background: 'rgba(2, 132, 199, 0.15)',
+                    color: '#0284c7'
+                  }}>
+                    📦 LOTS & DLUO
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                  Cosmétiques & Parapharmacie
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.55', marginBottom: '18px' }}>
+                  Suivi fin des références par teintes, gestion des dates d'expiration, réassort intelligent et clôtures Z certifiées.
+                </p>
+
+                <div style={{ marginBottom: '22px' }}>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#0284c7" />
+                    <span>Variantes & teintes par référence</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#0284c7" />
+                    <span>Historique d'achats par client</span>
+                  </div>
+                  <div className="sector-feature-item">
+                    <CheckCircle2 size={15} color="#0284c7" />
+                    <span>Clôtures Z & TVA 16% RIM conformes</span>
+                  </div>
+                </div>
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '8px' }}>Cosmétiques & Parapharmacie</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '14px' }}>
-                Suivi précis des références, réapprovisionnement automatique et clôtures Z certifiées.
-              </p>
-              <button 
-                onClick={() => { setSector('market'); onEnterApp('pos'); }}
-                className="btn-secondary" 
-                style={{ width: '100%', fontSize: '0.8rem', padding: '8px' }}
+
+              <button
+                onClick={() => {
+                  setSector('market');
+                  onEnterApp('pos');
+                }}
+                className="sector-btn-action"
+                style={{
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-glass)',
+                  color: 'var(--text-main)'
+                }}
               >
-                {account ? 'Accéder Mode Cosmétique ➔' : 'Tester Mode Cosmétique (Démo) ➔'}
+                <span>Tester Mode Cosmétique (Démo)</span>
+                <ArrowRight size={16} />
               </button>
             </div>
           </div>
