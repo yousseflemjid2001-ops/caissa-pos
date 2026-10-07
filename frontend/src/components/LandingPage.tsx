@@ -3033,20 +3033,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           margin: '0 auto',
           borderTop: '1px solid var(--border-glass)',
           paddingTop: '20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '10px'
+          textAlign: 'center',
+          color: 'var(--text-dim)',
+          fontSize: '0.8rem'
         }}>
-          <div>© 2026 Caissa.mr — Tous droits réservés. Modèle SaaS inspiré de Caissa.tn adapté pour la Mauritanie.</div>
-          <button
-            onClick={() => onEnterApp('pos')}
-            className="btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-          >
-            Lancer l'Application Caisse ➔
-          </button>
+          <div>© 2026 Caissa.mr — Tous droits réservés.</div>
         </div>
       </footer>
     </div>
