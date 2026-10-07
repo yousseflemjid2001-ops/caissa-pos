@@ -19,16 +19,19 @@ import {
   Home,
   Bot,
   ChevronDown,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Scale,
+  Sparkles
 } from 'lucide-react';
 import { loginPinApi } from '../services/api';
 import type { UserAccount } from './AuthModal';
+import type { SectorType } from '../data/mockData';
 
 interface NavbarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
-  sector: 'restaurant' | 'market';
-  setSector: (sector: 'restaurant' | 'market') => void;
+  sector: SectorType;
+  setSector: (sector: SectorType) => void;
   theme: 'dark' | 'light';
   setTheme: (theme: 'dark' | 'light') => void;
   cartCount: number;
@@ -247,14 +250,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               gap: '4px',
               border: 'none',
               cursor: 'pointer',
-              padding: '3px 8px',
+              padding: '3px 7px',
               borderRadius: '4px',
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               fontWeight: sector === 'restaurant' ? 700 : 500,
-              background: sector === 'restaurant' ? '#059669' : 'transparent',
+              background: sector === 'restaurant' ? '#ea580c' : 'transparent',
               color: sector === 'restaurant' ? '#fff' : 'var(--text-muted)',
               transition: 'all 0.15s ease'
             }}
+            title="Mode Restauration & Chwaya"
           >
             <UtensilsCrossed size={11} />
             <span>Resto</span>
@@ -267,17 +271,60 @@ export const Navbar: React.FC<NavbarProps> = ({
               gap: '4px',
               border: 'none',
               cursor: 'pointer',
-              padding: '3px 8px',
+              padding: '3px 7px',
               borderRadius: '4px',
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               fontWeight: sector === 'market' ? 700 : 500,
               background: sector === 'market' ? '#059669' : 'transparent',
               color: sector === 'market' ? '#fff' : 'var(--text-muted)',
               transition: 'all 0.15s ease'
             }}
+            title="Mode Boutique, Épicerie & Hanout"
           >
             <ShoppingBag size={11} />
             <span>Boutique</span>
+          </button>
+          <button
+            onClick={() => setSector('butcher')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '3px 7px',
+              borderRadius: '4px',
+              fontSize: '0.7rem',
+              fontWeight: sector === 'butcher' ? 700 : 500,
+              background: sector === 'butcher' ? '#d97706' : 'transparent',
+              color: sector === 'butcher' ? '#fff' : 'var(--text-muted)',
+              transition: 'all 0.15s ease'
+            }}
+            title="Mode Boucherie, Poisson & Pesée au Kg"
+          >
+            <Scale size={11} />
+            <span>Pesée</span>
+          </button>
+          <button
+            onClick={() => setSector('cosmetics')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '3px 7px',
+              borderRadius: '4px',
+              fontSize: '0.7rem',
+              fontWeight: sector === 'cosmetics' ? 700 : 500,
+              background: sector === 'cosmetics' ? '#0284c7' : 'transparent',
+              color: sector === 'cosmetics' ? '#fff' : 'var(--text-muted)',
+              transition: 'all 0.15s ease'
+            }}
+            title="Mode Cosmétiques & Parapharmacie"
+          >
+            <Sparkles size={11} />
+            <span>Beauté</span>
           </button>
         </div>
       </div>

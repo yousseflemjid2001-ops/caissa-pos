@@ -25,15 +25,16 @@ import {
   Phone
 } from 'lucide-react';
 import type { UserAccount } from './AuthModal';
+import type { SectorType } from '../data/mockData';
 
 interface LandingPageProps {
   onEnterApp: (tab?: string) => void;
-  sector?: 'restaurant' | 'market';
-  setSector: (sector: 'restaurant' | 'market') => void;
+  sector?: SectorType;
+  setSector: (sector: SectorType) => void;
   theme?: 'dark' | 'light';
   setTheme?: (theme: 'dark' | 'light') => void;
   account?: UserAccount | null;
-  onOpenAuthModal?: (mode?: 'register' | 'login', preSector?: 'restaurant' | 'market') => void;
+  onOpenAuthModal?: (mode?: 'register' | 'login', preSector?: SectorType) => void;
   onLogout?: () => void;
 }
 
@@ -45,7 +46,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onLogout
 }) => {
   const [activePreviewTab, setActivePreviewTab] = useState<'pos' | 'kridi' | 'stock' | 'dashboard' | 'kds'>('pos');
+  const [showcaseSector, setShowcaseSector] = useState<SectorType>('restaurant');
   const [restaurantCaptureTab, setRestaurantCaptureTab] = useState<'pos' | 'tables' | 'kds' | 'receipt'>('pos');
+  const [marketCaptureTab, setMarketCaptureTab] = useState<'pos' | 'kridi' | 'nobarcode' | 'mobile'>('pos');
+  const [butcherCaptureTab, setButcherCaptureTab] = useState<'scale' | 'tare' | 'ticket' | 'margins'>('scale');
+  const [cosmeticsCaptureTab, setCosmeticsCaptureTab] = useState<'shades' | 'lots' | 'clients' | 'zreport'>('shades');
   const [subscriptionDays, setSubscriptionDays] = useState<number>(365);
   const [trialPhone, setTrialPhone] = useState<string>('');
   const [trialName, setTrialName] = useState<string>('');
@@ -607,98 +612,303 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 3.5. NOUVELLE SECTION VITRINE : SYSTÈME RESTAURATION COMPLET AVEC CAPTURES RÉELLES & ANIMATIONS */}
+      {/* 3.5. VITRINE INTERACTIVE MULTI-MÉTIERS : LES 4 CAISSES SPÉCIALISÉES EN DIRECT */}
       <section className="restaurant-showcase-section">
-        {/* En-tête de la section Restauration */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(234, 88, 12, 0.12)',
-            border: '1px solid rgba(234, 88, 12, 0.35)',
-            padding: '6px 16px',
-            borderRadius: '999px',
-            fontSize: '0.78rem',
-            fontWeight: 800,
-            color: '#ea580c',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            marginBottom: '12px'
-          }}>
-            <UtensilsCrossed size={14} />
-            <span>Spécial Restaurants, Cafés & Fast-Foods Mauritanie</span>
-            <span style={{ background: '#ea580c', color: '#fff', fontSize: '0.62rem', padding: '1px 6px', borderRadius: '4px', fontWeight: 900 }}>NOUVEAU</span>
-          </div>
-
-          <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 900, letterSpacing: '-0.02em', margin: '0 0 10px' }}>
-            Un Système Restaurant Complet &{' '}
-            <span style={{
-              background: 'linear-gradient(135deg, #ea580c 0%, #f59e0b 50%, #10b981 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              display: 'inline-block'
-            }}>
-              Ultra-Fluide en Direct
-            </span>
-          </h2>
-          <p style={{ fontSize: '0.96rem', color: 'var(--text-muted)', maxWidth: '780px', margin: '0 auto', lineHeight: '1.6' }}>
-            Découvrez en direct l'interface tactile utilisée par les serveurs, le plan de table 2D interactif, l'écran cuisine KDS sans fil et l'impression automatique des tickets d'addition en MRU.
-          </p>
-        </div>
-
-        {/* Sélecteur d'onglets animé pour basculer entre les captures */}
+        {/* Sélecteur de Secteur Métier Principal de la Vitrine */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '12px',
+          gap: '8px',
           flexWrap: 'wrap',
           marginBottom: '28px'
         }}>
           {[
-            { id: 'pos', label: '1. Prise de Commande Tactile', icon: Store, badge: 'Rapide < 5s' },
-            { id: 'tables', label: '2. Plan de Tables & Salons', icon: UtensilsCrossed, badge: 'Salles VIP & Terrasse' },
-            { id: 'kds', label: '3. Écran Cuisine KDS', icon: ChefHat, badge: 'Zéro Papier' },
-            { id: 'receipt', label: '4. Ticket & Rapprochement Bankily', icon: Sparkles, badge: 'NIF & TVA 16%' }
-          ].map(tab => {
-            const Icon = tab.icon;
-            const active = restaurantCaptureTab === tab.id;
+            { id: 'restaurant', label: '1. Restauration & Chwaya', icon: UtensilsCrossed, color: '#ea580c', badge: 'LE PLUS CHOISI' },
+            { id: 'market', label: '2. Boutique & Hanout', icon: ShoppingBag, color: '#10b981', badge: '100% CODE-BARRES' },
+            { id: 'butcher', label: '3. Boucherie & Vrac', icon: Scale, color: '#d97706', badge: 'VENTE AU KG' },
+            { id: 'cosmetics', label: '4. Cosmétiques & Beauté', icon: ShieldCheck, color: '#0284c7', badge: 'LOTS & DLUO' }
+          ].map(s => {
+            const Icon = s.icon;
+            const active = showcaseSector === s.id;
             return (
               <button
-                key={tab.id}
-                onClick={() => setRestaurantCaptureTab(tab.id as any)}
-                className={`restaurant-tab-pill ${active ? 'active' : ''}`}
+                key={s.id}
+                onClick={() => {
+                  setShowcaseSector(s.id as any);
+                  setSector(s.id as any);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '12px',
+                  border: `1.5px solid ${active ? s.color : 'var(--border-glass)'}`,
+                  background: active ? `linear-gradient(135deg, ${s.color}22, ${s.color}08)` : 'var(--bg-card)',
+                  color: active ? 'var(--text-main)' : 'var(--text-muted)',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  boxShadow: active ? `0 8px 20px -6px ${s.color}40` : 'none',
+                  transition: 'all 0.25s ease'
+                }}
               >
-                <Icon size={16} />
-                <span>{tab.label}</span>
+                <div style={{ color: s.color, display: 'flex' }}>
+                  <Icon size={17} />
+                </div>
+                <span>{s.label}</span>
                 <span style={{
-                  fontSize: '0.68rem',
-                  padding: '2px 8px',
+                  fontSize: '0.62rem',
+                  padding: '2px 7px',
                   borderRadius: '999px',
-                  background: active ? 'rgba(255, 255, 255, 0.22)' : 'var(--bg-tertiary)',
+                  background: active ? s.color : 'var(--bg-tertiary)',
                   color: active ? '#ffffff' : 'var(--text-dim)',
-                  fontWeight: 800
+                  fontWeight: 900
                 }}>
-                  {tab.badge}
+                  {s.badge}
                 </span>
               </button>
             );
           })}
         </div>
 
+        {/* En-tête Dynamique selon le Secteur */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: showcaseSector === 'restaurant' ? 'rgba(234, 88, 12, 0.12)' : showcaseSector === 'market' ? 'rgba(16, 185, 129, 0.12)' : showcaseSector === 'butcher' ? 'rgba(217, 119, 6, 0.12)' : 'rgba(2, 132, 199, 0.12)',
+            border: `1px solid ${showcaseSector === 'restaurant' ? 'rgba(234, 88, 12, 0.35)' : showcaseSector === 'market' ? 'rgba(16, 185, 129, 0.35)' : showcaseSector === 'butcher' ? 'rgba(217, 119, 6, 0.35)' : 'rgba(2, 132, 199, 0.35)'}`,
+            padding: '6px 16px',
+            borderRadius: '999px',
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            color: showcaseSector === 'restaurant' ? '#ea580c' : showcaseSector === 'market' ? '#10b981' : showcaseSector === 'butcher' ? '#d97706' : '#0284c7',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            marginBottom: '12px'
+          }}>
+            {showcaseSector === 'restaurant' && <UtensilsCrossed size={14} />}
+            {showcaseSector === 'market' && <ShoppingBag size={14} />}
+            {showcaseSector === 'butcher' && <Scale size={14} />}
+            {showcaseSector === 'cosmetics' && <ShieldCheck size={14} />}
+            <span>
+              {showcaseSector === 'restaurant' && 'Spécial Restaurants, Cafés & Chwaya Mauritanie'}
+              {showcaseSector === 'market' && 'Spécial Boutiques, Épiceries & Hanout Mauritanie'}
+              {showcaseSector === 'butcher' && 'Spécial Boucheries, Poissonneries & Marché en Vrac'}
+              {showcaseSector === 'cosmetics' && 'Spécial Cosmétiques, Parfumerie & Parapharmacie'}
+            </span>
+            <span style={{ 
+              background: showcaseSector === 'restaurant' ? '#ea580c' : showcaseSector === 'market' ? '#10b981' : showcaseSector === 'butcher' ? '#d97706' : '#0284c7', 
+              color: '#fff', fontSize: '0.62rem', padding: '1px 6px', borderRadius: '4px', fontWeight: 900 
+            }}>
+              SUR-MESURE
+            </span>
+          </div>
+
+          <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 900, letterSpacing: '-0.02em', margin: '0 0 10px' }}>
+            {showcaseSector === 'restaurant' && 'Un Système Restaurant Complet & '}
+            {showcaseSector === 'market' && 'Caisse Douchette Ultra-Rapide & '}
+            {showcaseSector === 'butcher' && 'Pesée Connectée en Direct & '}
+            {showcaseSector === 'cosmetics' && 'Gestion Parfaite des Nuances, Lots & '}
+            <span style={{
+              background: showcaseSector === 'restaurant' 
+                ? 'linear-gradient(135deg, #ea580c 0%, #f59e0b 50%, #10b981 100%)'
+                : showcaseSector === 'market'
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 50%, #0284c7 100%)'
+                : showcaseSector === 'butcher'
+                ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #ea580c 100%)'
+                : 'linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #8b5cf6 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              display: 'inline-block'
+            }}>
+              {showcaseSector === 'restaurant' && 'Ultra-Fluide en Direct'}
+              {showcaseSector === 'market' && 'Carnet Kridi Intelligent'}
+              {showcaseSector === 'butcher' && 'Calcul Prix au Kilogramme'}
+              {showcaseSector === 'cosmetics' && 'Péremptions DLUO'}
+            </span>
+          </h2>
+          <p style={{ fontSize: '0.96rem', color: 'var(--text-muted)', maxWidth: '780px', margin: '0 auto', lineHeight: '1.6' }}>
+            {showcaseSector === 'restaurant' && "Découvrez en direct l'interface tactile utilisée par les serveurs, le plan de table 2D interactif, l'écran cuisine KDS sans fil et l'impression automatique des tickets d'addition en MRU."}
+            {showcaseSector === 'market' && "Lecture code-barres instantanée (< 0.2s), carnet de crédit Kridi (الكريدي) avec NNI et alertes SMS de relance, gestion des articles sans code-barres et rapprochement Bankily / Masrvi."}
+            {showcaseSector === 'butcher' && "Vente au poids de Viande de Chameau (حوار), Agneau du pays et Poisson Thiof. Connexion balance directe, déduction automatique de la tare barquette, impression ticket avec poids exact au gramme."}
+            {showcaseSector === 'cosmetics' && "Nuancier de teintes pour rouges à lèvres et fonds de teint, traçabilité des lots et dates d'expiration (DLUO), fiches clientes beauté et clôtures Z certifiées conformes."}
+          </p>
+        </div>
+
+        {/* Sélecteur d'onglets pour le secteur Restauration */}
+        {showcaseSector === 'restaurant' && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '28px' }}>
+            {[
+              { id: 'pos', label: '1. Prise de Commande Tactile', icon: Store, badge: 'Rapide < 5s' },
+              { id: 'tables', label: '2. Plan de Tables & Salons', icon: UtensilsCrossed, badge: 'Salles VIP & Terrasse' },
+              { id: 'kds', label: '3. Écran Cuisine KDS', icon: ChefHat, badge: 'Zéro Papier' },
+              { id: 'receipt', label: '4. Ticket & Rapprochement Bankily', icon: Sparkles, badge: 'NIF & TVA 16%' }
+            ].map(tab => {
+              const Icon = tab.icon;
+              const active = restaurantCaptureTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setRestaurantCaptureTab(tab.id as any)}
+                  className={`restaurant-tab-pill ${active ? 'active' : ''}`}
+                >
+                  <Icon size={16} />
+                  <span>{tab.label}</span>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    background: active ? 'rgba(255, 255, 255, 0.22)' : 'var(--bg-tertiary)',
+                    color: active ? '#ffffff' : 'var(--text-dim)',
+                    fontWeight: 800
+                  }}>
+                    {tab.badge}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Sélecteur d'onglets pour le secteur Boutique */}
+        {showcaseSector === 'market' && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '28px' }}>
+            {[
+              { id: 'pos', label: '1. Scan Douchette Ultra-Rapide', icon: Store, badge: '< 0.2s / Article' },
+              { id: 'kridi', label: '2. Carnet Kridi Client (الكريدي)', icon: BookOpen, badge: 'Plafonds & SMS' },
+              { id: 'nobarcode', label: '3. Raccourcis Sans Code-Barres', icon: Zap, badge: 'Pain & Recharges' },
+              { id: 'mobile', label: '4. Validation Bankily & Masrvi', icon: Smartphone, badge: 'Zéro Écart' }
+            ].map(tab => {
+              const Icon = tab.icon;
+              const active = marketCaptureTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setMarketCaptureTab(tab.id as any)}
+                  className={`restaurant-tab-pill ${active ? 'active' : ''}`}
+                  style={{ borderColor: active ? '#10b981' : undefined, background: active ? '#10b981' : undefined }}
+                >
+                  <Icon size={16} />
+                  <span>{tab.label}</span>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    background: active ? 'rgba(255, 255, 255, 0.22)' : 'var(--bg-tertiary)',
+                    color: active ? '#ffffff' : 'var(--text-dim)',
+                    fontWeight: 800
+                  }}>
+                    {tab.badge}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Sélecteur d'onglets pour le secteur Boucherie */}
+        {showcaseSector === 'butcher' && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '28px' }}>
+            {[
+              { id: 'scale', label: '1. Balance Connectée en Direct', icon: Scale, badge: 'Port COM / USB' },
+              { id: 'tare', label: '2. Calculateur Prix/Kg & Tare', icon: Zap, badge: 'Tare Déduite' },
+              { id: 'ticket', label: '3. Ticket Poids Net au Gramme', icon: Sparkles, badge: 'Exactitude 100%' },
+              { id: 'margins', label: '4. Suivi Rendement & Découpe', icon: TrendingUp, badge: 'Marges Nettes' }
+            ].map(tab => {
+              const Icon = tab.icon;
+              const active = butcherCaptureTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setButcherCaptureTab(tab.id as any)}
+                  className={`restaurant-tab-pill ${active ? 'active' : ''}`}
+                  style={{ borderColor: active ? '#d97706' : undefined, background: active ? '#d97706' : undefined }}
+                >
+                  <Icon size={16} />
+                  <span>{tab.label}</span>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    background: active ? 'rgba(255, 255, 255, 0.22)' : 'var(--bg-tertiary)',
+                    color: active ? '#ffffff' : 'var(--text-dim)',
+                    fontWeight: 800
+                  }}>
+                    {tab.badge}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Sélecteur d'onglets pour le secteur Cosmétiques */}
+        {showcaseSector === 'cosmetics' && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '28px' }}>
+            {[
+              { id: 'shades', label: '1. Nuancier Teintes & Couleurs', icon: Sparkles, badge: 'Nuances Lèvres/Teint' },
+              { id: 'lots', label: '2. Traçabilité Lots & DLUO', icon: ShieldCheck, badge: 'Dates Péremption' },
+              { id: 'clients', label: '3. Fiches Clientes Beauté', icon: Store, badge: 'Historique Soins' },
+              { id: 'zreport', label: '4. Clôture Z & TVA 16% RIM', icon: BookOpen, badge: 'Certifié Conforme' }
+            ].map(tab => {
+              const Icon = tab.icon;
+              const active = cosmeticsCaptureTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setCosmeticsCaptureTab(tab.id as any)}
+                  className={`restaurant-tab-pill ${active ? 'active' : ''}`}
+                  style={{ borderColor: active ? '#0284c7' : undefined, background: active ? '#0284c7' : undefined }}
+                >
+                  <Icon size={16} />
+                  <span>{tab.label}</span>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    background: active ? 'rgba(255, 255, 255, 0.22)' : 'var(--bg-tertiary)',
+                    color: active ? '#ffffff' : 'var(--text-dim)',
+                    fontWeight: 800
+                  }}>
+                    {tab.badge}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Cadre Mockup Haute Définition avec la capture sélectionnée & badges flottants */}
         <div className="restaurant-mockup-frame">
-          {/* Topbar style macOS / Tablette Restaurant */}
+          {/* Topbar style macOS / Tablette Métier */}
           <div className="restaurant-mockup-topbar">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ef4444' }} />
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#f59e0b' }} />
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981' }} />
               <span style={{ marginLeft: '12px', fontSize: '0.78rem', color: '#94a3b8', fontFamily: 'monospace', fontWeight: 600 }}>
-                {restaurantCaptureTab === 'tables' && 'caissa.mr/restaurant/plan-de-tables • Salle Principale & Terrasse'}
-                {restaurantCaptureTab === 'kds' && 'caissa.mr/restaurant/cuisine-kds • Écran Chef Cuisinier en Direct'}
-                {restaurantCaptureTab === 'pos' && 'caissa.mr/restaurant/caisse-tactile • Prise de Commande & Menu'}
-                {restaurantCaptureTab === 'receipt' && 'caissa.mr/restaurant/ticket • Rapprochement Bankily / Masrvi'}
+                {showcaseSector === 'restaurant' && restaurantCaptureTab === 'tables' && 'caissa.mr/restaurant/plan-de-tables • Salle Principale & Terrasse'}
+                {showcaseSector === 'restaurant' && restaurantCaptureTab === 'kds' && 'caissa.mr/restaurant/cuisine-kds • Écran Chef Cuisinier en Direct'}
+                {showcaseSector === 'restaurant' && restaurantCaptureTab === 'pos' && 'caissa.mr/restaurant/caisse-tactile • Prise de Commande & Menu'}
+                {showcaseSector === 'restaurant' && restaurantCaptureTab === 'receipt' && 'caissa.mr/restaurant/ticket • Rapprochement Bankily / Masrvi'}
+
+                {showcaseSector === 'market' && marketCaptureTab === 'pos' && 'caissa.mr/boutique/douchette • Scan Douchette < 0.2s'}
+                {showcaseSector === 'market' && marketCaptureTab === 'kridi' && 'caissa.mr/boutique/carnet-kridi • Carnet de Crédit (الكريدي) & Relances'}
+                {showcaseSector === 'market' && marketCaptureTab === 'nobarcode' && 'caissa.mr/boutique/sans-code-barres • Baguettes & Recharges Télécom'}
+                {showcaseSector === 'market' && marketCaptureTab === 'mobile' && 'caissa.mr/boutique/mobile-money • Validation Bankily & Masrvi'}
+
+                {showcaseSector === 'butcher' && butcherCaptureTab === 'scale' && 'caissa.mr/boucherie/balance-directe • Pesée Électronique Connectée'}
+                {showcaseSector === 'butcher' && butcherCaptureTab === 'tare' && 'caissa.mr/boucherie/tare-automatique • Déduction Poids Barquette & Prix Kg'}
+                {showcaseSector === 'butcher' && butcherCaptureTab === 'ticket' && 'caissa.mr/boucherie/ticket-poids • Ticket Poids Net & Mentions Légales'}
+                {showcaseSector === 'butcher' && butcherCaptureTab === 'margins' && 'caissa.mr/boucherie/rendement • Suivi Pertes & Rendement Découpe'}
+
+                {showcaseSector === 'cosmetics' && cosmeticsCaptureTab === 'shades' && 'caissa.mr/cosmetiques/nuancier • Teintes Rouges à Lèvres & Fonds de Teint'}
+                {showcaseSector === 'cosmetics' && cosmeticsCaptureTab === 'lots' && 'caissa.mr/cosmetiques/lots-dluo • Traçabilité Lots & Alertes Péremption'}
+                {showcaseSector === 'cosmetics' && cosmeticsCaptureTab === 'clients' && 'caissa.mr/cosmetiques/fiches-clientes • Historique d\'Achat & Soins'}
+                {showcaseSector === 'cosmetics' && cosmeticsCaptureTab === 'zreport' && 'caissa.mr/cosmetiques/cloture-z • Clôture Fiscale Z & TVA 16% RIM'}
               </span>
             </div>
 
@@ -709,11 +919,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
               <button
                 onClick={() => {
-                  setSector('restaurant');
-                  onEnterApp(restaurantCaptureTab === 'tables' ? 'tables' : restaurantCaptureTab === 'kds' ? 'kds' : 'pos');
+                  setSector(showcaseSector);
+                  onEnterApp(
+                    showcaseSector === 'restaurant'
+                      ? (restaurantCaptureTab === 'tables' ? 'tables' : restaurantCaptureTab === 'kds' ? 'kds' : 'pos')
+                      : 'pos'
+                  );
                 }}
                 className="btn-primary"
-                style={{ padding: '4px 12px', fontSize: '0.75rem', fontWeight: 800, borderRadius: '6px', marginLeft: '6px' }}
+                style={{ 
+                  padding: '4px 12px', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 800, 
+                  borderRadius: '6px', 
+                  marginLeft: '6px',
+                  background: showcaseSector === 'restaurant' ? '#ea580c' : showcaseSector === 'market' ? '#10b981' : showcaseSector === 'butcher' ? '#d97706' : '#0284c7'
+                }}
               >
                 Tester ce mode ➔
               </button>
@@ -722,18 +943,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           {/* Zone d'affichage de la capture d'écran avec badges flottants */}
           <div style={{ position: 'relative', width: '100%', minHeight: '380px', maxHeight: '620px', overflow: 'hidden', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {/* L'image de capture réelle */}
+            {/* L'image de capture réelle selon le secteur et l'onglet */}
             <img
               src={
-                restaurantCaptureTab === 'tables'
-                  ? '/screenshots/tables_restaurant_screen_1791315425516.png'
-                  : restaurantCaptureTab === 'kds'
-                  ? '/screenshots/kds_restaurant_screen_1791315455733.png'
-                  : restaurantCaptureTab === 'pos'
+                showcaseSector === 'restaurant'
+                  ? (restaurantCaptureTab === 'tables'
+                    ? '/screenshots/tables_restaurant_screen_1791315425516.png'
+                    : restaurantCaptureTab === 'kds'
+                    ? '/screenshots/kds_restaurant_screen_1791315455733.png'
+                    : restaurantCaptureTab === 'pos'
+                    ? '/screenshots/pos_restaurant_screen_photos.png'
+                    : '/screenshots/payment_receipt_success_1791318272048.png')
+                  : showcaseSector === 'market'
+                  ? '/screenshots/pos_boutique_demo_1791314735684.png'
+                  : showcaseSector === 'butcher'
                   ? '/screenshots/pos_restaurant_screen_photos.png'
-                  : '/screenshots/payment_receipt_success_1791318272048.png'
+                  : '/screenshots/pos_boutique_demo_1791314735684.png'
               }
-              alt="Capture Système Restaurant Caissa"
+              alt="Capture Système Caissa"
               style={{
                 width: '100%',
                 height: 'auto',
@@ -744,8 +971,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               }}
             />
 
-            {/* Badges Flottants Interactifs Animés selon l'onglet actif */}
-            {restaurantCaptureTab === 'tables' && (
+            {/* Badges Flottants Interactifs Animés : RESTAURANT */}
+            {showcaseSector === 'restaurant' && restaurantCaptureTab === 'tables' && (
               <>
                 <div className="restaurant-floating-badge restaurant-badge-1">
                   <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -771,7 +998,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </>
             )}
 
-            {restaurantCaptureTab === 'kds' && (
+            {showcaseSector === 'restaurant' && restaurantCaptureTab === 'kds' && (
               <>
                 <div className="restaurant-floating-badge restaurant-badge-1">
                   <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(234, 88, 12, 0.2)', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -797,7 +1024,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </>
             )}
 
-            {restaurantCaptureTab === 'pos' && (
+            {showcaseSector === 'restaurant' && restaurantCaptureTab === 'pos' && (
               <>
                 <div className="restaurant-floating-badge" style={{ bottom: '30px', left: '30px' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -823,7 +1050,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </>
             )}
 
-            {restaurantCaptureTab === 'receipt' && (
+            {showcaseSector === 'restaurant' && restaurantCaptureTab === 'receipt' && (
               <>
                 <div className="restaurant-floating-badge restaurant-badge-1">
                   <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(234, 88, 12, 0.2)', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -848,9 +1075,90 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
               </>
             )}
+
+            {/* Badges Flottants Interactifs Animés : BOUTIQUE */}
+            {showcaseSector === 'market' && (
+              <>
+                <div className="restaurant-floating-badge restaurant-badge-1">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Zap size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>⚡ Scan Douchette Ultra-Rapide</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Lait Gloria 400g • 140 MRU</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Code 2222000104 scanné en 0.18s</div>
+                  </div>
+                </div>
+
+                <div className="restaurant-floating-badge restaurant-badge-2">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(217, 119, 6, 0.2)', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <BookOpen size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#d97706', fontWeight: 800, textTransform: 'uppercase' }}>📖 Carnet Kridi (الكريدي)</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Cheikh Ould Sidi • Dette: 850 MRU</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Plafond 5 000 MRU • SMS de relance envoyé</div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Badges Flottants Interactifs Animés : BOUCHERIE */}
+            {showcaseSector === 'butcher' && (
+              <>
+                <div className="restaurant-floating-badge restaurant-badge-1">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(217, 119, 6, 0.2)', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Scale size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#d97706', fontWeight: 800, textTransform: 'uppercase' }}>⚖️ Balance Connectée en Direct</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Viande Chameau Hwar : 1.450 kg</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Prix au kg : 280 MRU • Total: 406 MRU</div>
+                  </div>
+                </div>
+
+                <div className="restaurant-floating-badge restaurant-badge-2">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(2, 132, 199, 0.2)', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Sparkles size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#0284c7', fontWeight: 800, textTransform: 'uppercase' }}>🐟 Marché aux Poissons Nouakchott</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Thiof / Mérou Frais : 2.100 kg</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Tare barquette déduite automatiquement</div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Badges Flottants Interactifs Animés : COSMÉTIQUES */}
+            {showcaseSector === 'cosmetics' && (
+              <>
+                <div className="restaurant-floating-badge restaurant-badge-1">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(2, 132, 199, 0.2)', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Sparkles size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#0284c7', fontWeight: 800, textTransform: 'uppercase' }}>💄 Nuancier Teinte Confirmée</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Rouge à Lèvres #02 Rose Pêche</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>L'Oréal Paris • 250 MRU au comptoir</div>
+                  </div>
+                </div>
+
+                <div className="restaurant-floating-badge restaurant-badge-2">
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>🌿 Traçabilité DLUO Certifiée</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800 }}>Crème CeraVe 454g • Lot #9821-CR</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Date expiration: 11/2026 • Zéro périmé</div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Bandeau d'information sous la capture avec 3 piliers */}
+          {/* Bandeau d'information sous la capture avec 3 piliers selon le secteur */}
           <div style={{
             background: 'var(--bg-card)',
             borderTop: '1px solid var(--border-glass)',
@@ -861,32 +1169,83 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             alignItems: 'center'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <UtensilsCrossed size={20} />
+              <div style={{ 
+                width: '42px', height: '42px', borderRadius: '12px', 
+                background: showcaseSector === 'restaurant' ? 'rgba(16, 185, 129, 0.12)' : showcaseSector === 'market' ? 'rgba(16, 185, 129, 0.12)' : showcaseSector === 'butcher' ? 'rgba(217, 119, 6, 0.12)' : 'rgba(2, 132, 199, 0.12)', 
+                color: showcaseSector === 'restaurant' ? '#10b981' : showcaseSector === 'market' ? '#10b981' : showcaseSector === 'butcher' ? '#d97706' : '#0284c7', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 
+              }}>
+                {showcaseSector === 'restaurant' && <UtensilsCrossed size={20} />}
+                {showcaseSector === 'market' && <Zap size={20} />}
+                {showcaseSector === 'butcher' && <Scale size={20} />}
+                {showcaseSector === 'cosmetics' && <Sparkles size={20} />}
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>Plan de Salle Sur-Mesure</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Glissez-déposez vos tables (VIP, Terrasse, Salons)</div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                  {showcaseSector === 'restaurant' && 'Plan de Salle Sur-Mesure'}
+                  {showcaseSector === 'market' && 'Scan Douchette < 0.2s'}
+                  {showcaseSector === 'butcher' && 'Balance USB & Port Série'}
+                  {showcaseSector === 'cosmetics' && 'Nuancier Teintes & Couleurs'}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  {showcaseSector === 'restaurant' && 'Glissez-déposez vos tables (VIP, Terrasse, Salons)'}
+                  {showcaseSector === 'market' && 'Encaissement ultra-fluide des articles à code-barres'}
+                  {showcaseSector === 'butcher' && 'Pesée directe et déduction automatique de tare'}
+                  {showcaseSector === 'cosmetics' && 'Sélection visuelle des variantes et nuances maquillage'}
+                </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(234, 88, 12, 0.12)', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <ChefHat size={20} />
+              <div style={{ 
+                width: '42px', height: '42px', borderRadius: '12px', 
+                background: showcaseSector === 'restaurant' ? 'rgba(234, 88, 12, 0.12)' : showcaseSector === 'market' ? 'rgba(217, 119, 6, 0.12)' : showcaseSector === 'butcher' ? 'rgba(234, 88, 12, 0.12)' : 'rgba(16, 185, 129, 0.12)', 
+                color: showcaseSector === 'restaurant' ? '#ea580c' : showcaseSector === 'market' ? '#d97706' : showcaseSector === 'butcher' ? '#ea580c' : '#10b981', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 
+              }}>
+                {showcaseSector === 'restaurant' && <ChefHat size={20} />}
+                {showcaseSector === 'market' && <BookOpen size={20} />}
+                {showcaseSector === 'butcher' && <TrendingUp size={20} />}
+                {showcaseSector === 'cosmetics' && <ShieldCheck size={20} />}
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>KDS Cuisine Connecté</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Chronomètres de cuisson et alertes de retard</div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                  {showcaseSector === 'restaurant' && 'KDS Cuisine Connecté'}
+                  {showcaseSector === 'market' && 'Carnet Kridi (الكريدي)'}
+                  {showcaseSector === 'butcher' && 'Suivi Pertes & Rendement'}
+                  {showcaseSector === 'cosmetics' && 'Traçabilité Lots & DLUO'}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  {showcaseSector === 'restaurant' && 'Chronomètres de cuisson et alertes de retard'}
+                  {showcaseSector === 'market' && 'Plafonds de crédit et relances SMS automatiques'}
+                  {showcaseSector === 'butcher' && 'Calcul des marges brutes de découpe et parages'}
+                  {showcaseSector === 'cosmetics' && 'Alertes préventives sur les dates de péremption'}
+                </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ 
+                width: '42px', height: '42px', borderRadius: '12px', 
+                background: showcaseSector === 'restaurant' ? 'rgba(59, 130, 246, 0.12)' : showcaseSector === 'market' ? 'rgba(59, 130, 246, 0.12)' : showcaseSector === 'butcher' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(59, 130, 246, 0.12)', 
+                color: showcaseSector === 'restaurant' ? '#3b82f6' : showcaseSector === 'market' ? '#3b82f6' : showcaseSector === 'butcher' ? '#10b981' : '#3b82f6', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 
+              }}>
                 <Smartphone size={20} />
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>Prise de Commande Mobile</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Serveurs équipés de téléphones ou tablettes</div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                  {showcaseSector === 'restaurant' && 'Prise de Commande Mobile'}
+                  {showcaseSector === 'market' && 'Rapprochement Bankily / Masrvi'}
+                  {showcaseSector === 'butcher' && 'Ticket avec Poids Net Homologué'}
+                  {showcaseSector === 'cosmetics' && 'Clôtures Z & TVA 16% RIM'}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  {showcaseSector === 'restaurant' && 'Serveurs équipés de téléphones ou tablettes'}
+                  {showcaseSector === 'market' && 'Validation instantanée des paiements sans erreur'}
+                  {showcaseSector === 'butcher' && 'Impression thermique 80mm conforme'}
+                  {showcaseSector === 'cosmetics' && 'Clôture comptable inaltérable et conforme'}
+                </div>
               </div>
             </div>
           </div>
@@ -1489,7 +1848,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
               <button
                 onClick={() => {
-                  setSector('market');
+                  setSector('butcher');
                   onEnterApp('pos');
                 }}
                 className="sector-btn-action"
@@ -1554,7 +1913,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
               <button
                 onClick={() => {
-                  setSector('market');
+                  setSector('cosmetics');
                   onEnterApp('pos');
                 }}
                 className="sector-btn-action"

@@ -19,6 +19,7 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { registerTenantApi, loginUserApi } from '../services/api';
+import type { SectorType } from '../data/mockData';
 
 export interface UserAccount {
   id: string;
@@ -26,7 +27,7 @@ export interface UserAccount {
   ownerName: string;
   email: string;
   phone: string;
-  sector: 'restaurant' | 'market';
+  sector: SectorType;
   restaurantType: string;
   city: string;
   tableCount: number;
@@ -41,7 +42,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: 'register' | 'login';
-  initialSector?: 'restaurant' | 'market';
+  initialSector?: SectorType;
   onAccountSuccess: (account: UserAccount) => void;
 }
 
@@ -53,7 +54,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onAccountSuccess
 }) => {
   const [mode, setMode] = useState<'register' | 'login'>(initialMode);
-  const [sector, setSector] = useState<'restaurant' | 'market'>(initialSector);
+  const [sector, setSector] = useState<SectorType>(initialSector);
 
   // Form Fields - Register
   const [businessName, setBusinessName] = useState('');

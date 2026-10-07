@@ -13,7 +13,7 @@ import { DashboardScreen } from './components/DashboardScreen';
 import { AiHubScreen } from './components/AiHubScreen';
 import { GestionScreen } from './components/GestionScreen';
 import { INITIAL_PRODUCTS } from './data/mockData';
-import type { Product, Table } from './data/mockData';
+import type { Product, Table, SectorType } from './data/mockData';
 import { AuthModal } from './components/AuthModal';
 import type { UserAccount } from './components/AuthModal';
 import { DatabaseDualEngineModal } from './components/DatabaseDualEngineModal';
@@ -29,7 +29,7 @@ import {
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('landing');
-  const [sector, setSector] = useState<'restaurant' | 'market'>('restaurant');
+  const [sector, setSector] = useState<SectorType>('restaurant');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'register' | 'login'>('register');
-  const [authModalSector, setAuthModalSector] = useState<'restaurant' | 'market'>('restaurant');
+  const [authModalSector, setAuthModalSector] = useState<SectorType>('restaurant');
   const [isDatabaseModalOpen, setIsDatabaseModalOpen] = useState<boolean>(false);
   const [isSimulatingOffline, setIsSimulatingOffline] = useState<boolean>(false);
 
@@ -200,7 +200,7 @@ export const App: React.FC = () => {
     showToast(`Table désélectionnée`);
   };
 
-  const handleOpenAuthModal = (mode: 'register' | 'login' = 'register', preSector: 'restaurant' | 'market' = 'restaurant') => {
+  const handleOpenAuthModal = (mode: 'register' | 'login' = 'register', preSector: SectorType = 'restaurant') => {
     setAuthModalMode(mode);
     setAuthModalSector(preSector);
     setIsAuthModalOpen(true);
@@ -300,7 +300,7 @@ export const App: React.FC = () => {
             sector={sector}
             setSector={(s) => {
               setSector(s);
-              if (s === 'market' && (currentTab === 'tables' || currentTab === 'kds')) {
+              if (s !== 'restaurant' && (currentTab === 'tables' || currentTab === 'kds')) {
                 setCurrentTab('pos');
               }
             }}

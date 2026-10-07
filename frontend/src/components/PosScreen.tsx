@@ -34,9 +34,10 @@ import {
   UserCheck,
   SlidersHorizontal,
   Package,
-  Edit3
+  Edit3,
+  Sparkles
 } from 'lucide-react';
-import type { Product, KridiCustomer, Table } from '../data/mockData';
+import type { Product, KridiCustomer, Table, SectorType } from '../data/mockData';
 import { INITIAL_KRIDI_CUSTOMERS, INITIAL_TABLES } from '../data/mockData';
 import type { UserAccount } from './AuthModal';
 import { 
@@ -64,7 +65,7 @@ export interface HeldTicket {
 
 interface PosScreenProps {
   products: Product[];
-  sector: 'restaurant' | 'market';
+  sector: SectorType;
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
   onOrderSuccess: (orderData: any) => void;
@@ -91,6 +92,8 @@ export const PosScreen: React.FC<PosScreenProps> = ({
   const [weighingProduct, setWeighingProduct] = useState<Product | null>(null);
   const [scaleWeight, setScaleWeight] = useState<number>(1.25); // kg simulation balance
   const [scaleTare, setScaleTare] = useState<number>(0);
+  const [shadeModalProduct, setShadeModalProduct] = useState<Product | null>(null);
+  const [selectedShade, setSelectedShade] = useState<string>('');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [cashGiven, setCashGiven] = useState<number>(0);
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
@@ -244,6 +247,12 @@ export const PosScreen: React.FC<PosScreenProps> = ({
       return;
     }
 
+    if (product.shades && product.shades.length > 0) {
+      setShadeModalProduct(product);
+      setSelectedShade(product.shades[0]);
+      return;
+    }
+
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id && !item.notes);
       if (existing) {
@@ -255,6 +264,23 @@ export const PosScreen: React.FC<PosScreenProps> = ({
       }
       return [...prev, { product, quantity: 1 }];
     });
+  };
+
+  const handleConfirmShade = () => {
+    if (!shadeModalProduct) return;
+    const noteText = `Teinte: ${selectedShade}${shadeModalProduct.lotNumber ? ` • Lot: ${shadeModalProduct.lotNumber}` : ''}`;
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === shadeModalProduct.id && item.notes === noteText);
+      if (existing) {
+        return prev.map(item =>
+          item.product.id === shadeModalProduct.id && item.notes === noteText
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { product: shadeModalProduct, quantity: 1, notes: noteText }];
+    });
+    setShadeModalProduct(null);
   };
 
   // Ajout d'un article libre / non répertorié au ticket
@@ -659,6 +685,16 @@ export const PosScreen: React.FC<PosScreenProps> = ({
       badgeColor = '#059669';
       bg = 'rgba(5, 150, 105, 0.08)';
       border = '1px solid rgba(5, 150, 105, 0.2)';
+    } else if (p.sector === 'butcher' || p.isWeighted || p.category.includes('Boucherie') || p.category.includes('Poisson')) {
+      icon = <Scale size={24} color="#d97706" />;
+      badgeColor = '#d97706';
+      bg = 'rgba(217, 119, 6, 0.08)';
+      border = '1px solid rgba(217, 119, 6, 0.25)';
+    } else if (p.sector === 'cosmetics' || p.category.includes('Maquillage') || p.category.includes('Teint') || p.category.includes('Soin') || p.category.includes('Parfum')) {
+      icon = <Sparkles size={24} color="#0284c7" />;
+      badgeColor = '#0284c7';
+      bg = 'rgba(2, 132, 199, 0.08)';
+      border = '1px solid rgba(2, 132, 199, 0.25)';
     }
 
     return (
@@ -724,6 +760,131 @@ export const PosScreen: React.FC<PosScreenProps> = ({
 
       {/* LEFT: Product Catalog & Fast Grid (Like Caissa.tn POS) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflow: 'hidden' }}>
+        {/* BANDEAU MÉTIER PERSONNALISÉ SELON LE SECTEUR ACTIF */}
+        {sector === 'butcher' && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(180, 83, 9, 0.05))',
+            border: '1px solid rgba(217, 119, 6, 0.35)',
+            borderRadius: '10px',
+            padding: '8px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(217, 119, 6, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706' }}>
+                <Scale size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#d97706', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>Boucherie, Poissonnerie & Pesée au Kg</span>
+                  <span style={{ fontSize: '0.62rem', background: '#d97706', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontWeight: 900 }}>⚖️ BALANCE CONNECTÉE</span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                  Poids net automatique × Prix au kg • Tare barquette déduite (Viande Chameau, Agneau, Thiof)
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>Simulateur Balance :</span>
+              {[0.5, 1.0, 1.5, 2.0].map(w => (
+                <button
+                  key={w}
+                  onClick={() => {
+                    setScaleWeight(w);
+                    if (sectorProducts.length > 0) {
+                      setWeighingProduct(sectorProducts[0]);
+                    }
+                  }}
+                  className="btn-secondary"
+                  style={{ padding: '3px 8px', fontSize: '0.7rem', fontWeight: 700 }}
+                  title={`Tester la pesée rapide de ${w} kg`}
+                >
+                  +{w}kg
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {sector === 'cosmetics' && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(56, 189, 248, 0.05))',
+            border: '1px solid rgba(2, 132, 199, 0.35)',
+            borderRadius: '10px',
+            padding: '8px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(2, 132, 199, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0284c7' }}>
+                <Sparkles size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0284c7', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>Cosmétiques, Parfumerie & Parapharmacie</span>
+                  <span style={{ fontSize: '0.62rem', background: '#0284c7', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontWeight: 900 }}>📦 LOTS & DLUO</span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                  Gestion fine des teintes & nuances maquillage, alertes péremption et traçabilité certifiée
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', background: 'rgba(2, 132, 199, 0.15)', color: '#0284c7', fontWeight: 700 }}>
+                🎨 Nuancier Teintes
+              </span>
+              <span style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 700 }}>
+                🧾 TVA 16% RIM Conforme
+              </span>
+            </div>
+          </div>
+        )}
+
+        {sector === 'market' && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.05))',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: '10px',
+            padding: '8px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                <ShoppingBag size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>Boutique, Épicerie & Hanout</span>
+                  <span style={{ fontSize: '0.62rem', background: '#10b981', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontWeight: 900 }}>⚡ 100% CODE-BARRES</span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                  Scan douchette continu, raccourcis sans code-barres et carnet Kridi (الكريدي)
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                onClick={() => setIsKridiModalOpen(true)}
+                className="btn-secondary"
+                style={{ padding: '3px 10px', fontSize: '0.72rem', fontWeight: 700, color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+              >
+                <BookOpen size={12} />
+                <span>Carnet Kridi</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Top Filter Bar: Search, Category Dropdown, Brand Dropdown & Utilities */}
         <div className="glass-panel" style={{
           padding: '8px 12px',
@@ -737,7 +898,15 @@ export const PosScreen: React.FC<PosScreenProps> = ({
             <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
             <input
               type="text"
-              placeholder={sector === 'restaurant' ? "Rechercher un plat (Thieb, Chwaya, Café...)" : "Scanner un code-barre ou rechercher un article..."}
+              placeholder={
+                sector === 'restaurant'
+                  ? "Rechercher un plat (Thieb, Chwaya, Café...)"
+                  : sector === 'butcher'
+                  ? "Rechercher une viande, poisson ou vrac (Chameau, Agneau, Thiof)..."
+                  : sector === 'cosmetics'
+                  ? "Rechercher un soin, parfum, teinte (L'Oréal, CeraVe, Oud)..."
+                  : "Scanner un code-barre ou rechercher un article..."
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -1045,7 +1214,46 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 </span>
               )}
 
-              {product.hasNoBarcode && (
+              {product.shades && product.shades.length > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  background: 'rgba(2, 132, 199, 0.15)',
+                  color: '#0284c7',
+                  border: '1px solid rgba(2, 132, 199, 0.3)',
+                  borderRadius: '999px',
+                  fontSize: '0.62rem',
+                  fontWeight: 700,
+                  padding: '2px 6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  zIndex: 2
+                }}>
+                  <Sparkles size={10} /> {product.shades.length} Nuances
+                </span>
+              )}
+
+              {product.lotNumber && (
+                <span style={{
+                  position: 'absolute',
+                  top: '8px',
+                  left: '8px',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  color: '#10b981',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  borderRadius: '4px',
+                  fontSize: '0.58rem',
+                  fontWeight: 700,
+                  padding: '1px 5px',
+                  zIndex: 2
+                }}>
+                  Lot {product.lotNumber}
+                </span>
+              )}
+
+              {product.hasNoBarcode && !product.lotNumber && (
                 <span style={{
                   position: 'absolute',
                   top: '8px',
@@ -3203,6 +3411,82 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 Valider sur le Carnet
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Nuancier & Teinte Cosmétiques */}
+      {shadeModalProduct && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 115
+        }}>
+          <div className="glass-panel" style={{ width: '420px', padding: '24px', borderRadius: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Sparkles size={22} color="#0284c7" />
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>{shadeModalProduct.name}</h3>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                    {shadeModalProduct.brand} • {shadeModalProduct.price} MRU
+                  </span>
+                </div>
+              </div>
+              <X size={18} style={{ cursor: 'pointer' }} onClick={() => setShadeModalProduct(null)} />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '8px' }}>
+                Sélectionner la Teinte / Nuance :
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                {shadeModalProduct.shades?.map(shade => (
+                  <button
+                    key={shade}
+                    type="button"
+                    onClick={() => setSelectedShade(shade)}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: `1.5px solid ${selectedShade === shade ? '#0284c7' : 'var(--border-glass)'}`,
+                      background: selectedShade === shade ? 'rgba(2, 132, 199, 0.15)' : 'var(--bg-tertiary)',
+                      color: selectedShade === shade ? '#0284c7' : 'var(--text-main)',
+                      fontWeight: selectedShade === shade ? 800 : 600,
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {shade}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {shadeModalProduct.lotNumber && (
+              <div style={{ background: 'var(--bg-tertiary)', padding: '10px 12px', borderRadius: '8px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Lot : <strong>{shadeModalProduct.lotNumber}</strong></span>
+                {shadeModalProduct.expiryDate && (
+                  <span style={{ color: '#10b981', fontWeight: 700 }}>DLUO : {shadeModalProduct.expiryDate}</span>
+                )}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleConfirmShade}
+              className="btn-primary"
+              style={{ width: '100%', padding: '10px', fontWeight: 800, fontSize: '0.85rem' }}
+            >
+              Ajouter cette Nuance au Ticket ➔
+            </button>
           </div>
         </div>
       )}

@@ -20,8 +20,10 @@ import {
   adjustProductStockApi 
 } from '../services/api';
 
+import type { SectorType } from '../data/mockData';
+
 interface StockScreenProps {
-  sector: 'restaurant' | 'market';
+  sector: SectorType;
   onProductsUpdated?: (products: Product[]) => void;
 }
 

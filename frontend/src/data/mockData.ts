@@ -1,3 +1,5 @@
+export type SectorType = 'restaurant' | 'market' | 'butcher' | 'cosmetics';
+
 export interface Product {
   id: string;
   name: string;
@@ -8,11 +10,14 @@ export interface Product {
   costPrice: number;
   image: string;
   barcode: string;
-  sector: 'restaurant' | 'market';
+  sector: SectorType;
   stock: number;
   isWeighted?: boolean; // Pour pesée poisson, viande, fruits
   unit?: string;
   hasNoBarcode?: boolean;
+  shades?: string[]; // Pour teintes cosmétiques (rouge à lèvres, fonds de teint, etc.)
+  lotNumber?: string; // Pour traçabilité lot de fabrication
+  expiryDate?: string; // Pour date de péremption DLUO
 }
 
 export interface Table {
@@ -729,6 +734,317 @@ export const INITIAL_PRODUCTS: Product[] = [
     sector: 'market',
     stock: 200,
     hasNoBarcode: true
+  },
+
+  // ==========================================
+  // --- SECTEUR 3 : BOUCHERIE, POISSONNERIE & PESÉE AU KG ---
+  // ==========================================
+  {
+    id: 'btch-1',
+    name: 'Poisson Frais Thiof / Mérou (au Kg)',
+    nameAr: 'سمك تيشوف طازج (بالكيلوغرام)',
+    category: 'Poissons & Produits de la Mer',
+    brand: 'Marché aux Poissons Nouakchott',
+    price: 350,
+    costPrice: 270,
+    image: 'poisson_thiof',
+    barcode: '2223000101',
+    sector: 'butcher',
+    stock: 45,
+    isWeighted: true,
+    unit: 'kg'
+  },
+  {
+    id: 'btch-2',
+    name: 'Viande de Chameau Fraîche Hwar (au Kg)',
+    nameAr: 'لحم إبل طري - حوار (بالكيلوغرام)',
+    category: 'Boucherie Chameau',
+    brand: 'Boucherie Centrale Nouakchott',
+    price: 280,
+    costPrice: 215,
+    image: 'viande_chameau',
+    barcode: '2223000102',
+    sector: 'butcher',
+    stock: 60,
+    isWeighted: true,
+    unit: 'kg'
+  },
+  {
+    id: 'btch-3',
+    name: 'Viande d\'Agneau Fraîche du Pays (au Kg)',
+    nameAr: 'لحم خروف محلي طازج (بالكيلوغرام)',
+    category: 'Boucherie Agneau',
+    brand: 'Boucherie Centrale Nouakchott',
+    price: 320,
+    costPrice: 250,
+    image: 'viande_agneau',
+    barcode: '2223000103',
+    sector: 'butcher',
+    stock: 50,
+    isWeighted: true,
+    unit: 'kg'
+  },
+  {
+    id: 'btch-4',
+    name: 'Courbine Fraîche de Nouadhibou (au Kg)',
+    nameAr: 'سمك كربين طازج من نواذيبو (بالكيلوغرام)',
+    category: 'Poissons & Produits de la Mer',
+    brand: 'Marché aux Poissons Nouakchott',
+    price: 240,
+    costPrice: 180,
+    image: 'courbine',
+    barcode: '2223000104',
+    sector: 'butcher',
+    stock: 35,
+    isWeighted: true,
+    unit: 'kg'
+  },
+  {
+    id: 'btch-5',
+    name: 'Foie d\'Agneau Frais Extra (au Kg)',
+    nameAr: 'كبدة خروف طازجة (بالكيلوغرام)',
+    category: 'Abats & Spécialités',
+    brand: 'Boucherie Centrale Nouakchott',
+    price: 360,
+    costPrice: 280,
+    image: 'foie_agneau',
+    barcode: '2223000105',
+    sector: 'butcher',
+    stock: 25,
+    isWeighted: true,
+    unit: 'kg'
+  },
+  {
+    id: 'btch-6',
+    name: 'Viande Hachée Pur Bœuf Préparée (au Kg)',
+    nameAr: 'لحم مفروم بقر طازج ومتبل (بالكيلوغرام)',
+    category: 'Bœuf & Préparations',
+    brand: 'Boucherie Centrale Nouakchott',
+    price: 260,
+    costPrice: 200,
+    image: 'viande_hachee',
+    barcode: '2223000106',
+    sector: 'butcher',
+    stock: 40,
+    isWeighted: true,
+    unit: 'kg'
+  },
+  {
+    id: 'btch-7',
+    name: 'Côtes de Bœuf Mauritanien (au Kg)',
+    nameAr: 'أضلاع بقر موريتاني طازجة (بالكيلوغرام)',
+    category: 'Bœuf & Préparations',
+    brand: 'Boucherie Centrale Nouakchott',
+    price: 290,
+    costPrice: 220,
+    image: 'cotes_boeuf',
+    barcode: '2223000107',
+    sector: 'butcher',
+    stock: 30,
+    isWeighted: true,
+    unit: 'kg'
+  },
+  {
+    id: 'btch-8',
+    name: 'Poulet Fermier Frais au Poids (au Kg)',
+    nameAr: 'دجاج محلي طازج بالوزن (بالكيلوغرام)',
+    category: 'Volailles Fermières',
+    brand: 'Élevage Local Mauritanie',
+    price: 190,
+    costPrice: 145,
+    image: 'poulet_fermier',
+    barcode: '2223000108',
+    sector: 'butcher',
+    stock: 55,
+    isWeighted: true,
+    unit: 'kg'
+  },
+
+  // ==========================================
+  // --- SECTEUR 4 : COSMÉTIQUES, BEAUTÉ & PARAPHARMACIE ---
+  // ==========================================
+  {
+    id: 'cosm-1',
+    name: 'Rouge à Lèvres Mat Velours Longue Tenue',
+    nameAr: 'أحمر شفاه مات مخملي يدوم طويلاً',
+    category: 'Maquillage & Lèvres',
+    brand: 'L\'Oréal Paris',
+    price: 250,
+    costPrice: 160,
+    image: 'rouge_levres',
+    barcode: '3600523001',
+    sector: 'cosmetics',
+    stock: 65,
+    shades: ['#01 Nude Saharien', '#02 Rose Pêche', '#03 Rouge Passion', '#04 Bordeaux Intense'],
+    lotNumber: 'LOT-2024-C01',
+    expiryDate: '12/2026'
+  },
+  {
+    id: 'cosm-2',
+    name: 'Fond de Teint Fluide Haute Couvrance SPF 50',
+    nameAr: 'كريم أساس تغطية كاملة مع واقي شمس',
+    category: 'Teint & Poudres',
+    brand: 'Maybelline New York',
+    price: 450,
+    costPrice: 290,
+    image: 'fond_de_teint',
+    barcode: '3600523002',
+    sector: 'cosmetics',
+    stock: 45,
+    shades: ['#10 Ivoire Naturel', '#20 Doré Chaud', '#30 Ambré Solaire', '#40 Ébène Profond'],
+    lotNumber: 'LOT-2024-F02',
+    expiryDate: '06/2027'
+  },
+  {
+    id: 'cosm-3',
+    name: 'Crème Hydratante Visage & Corps CeraVe 454g',
+    nameAr: 'كريم سيرافي المرطب للوجه والجسم',
+    category: 'Soins Visage & Parapharmacie',
+    brand: 'CeraVe Dermatologique',
+    price: 380,
+    costPrice: 260,
+    image: 'cerave_creme',
+    barcode: '3337875597',
+    sector: 'cosmetics',
+    stock: 35,
+    lotNumber: 'LOT-9821-CR',
+    expiryDate: '11/2026'
+  },
+  {
+    id: 'cosm-4',
+    name: 'Sérum Éclat Vitamine C 10% & Acide Hyaluronique 30ml',
+    nameAr: 'سيروم فيتامين سي والهيالورونيك للنضارة',
+    category: 'Sérums & Anti-Âge',
+    brand: 'La Roche-Posay',
+    price: 420,
+    costPrice: 280,
+    image: 'serum_vitamine_c',
+    barcode: '3337875661',
+    sector: 'cosmetics',
+    stock: 30,
+    lotNumber: 'LOT-5510-SR',
+    expiryDate: '09/2026'
+  },
+  {
+    id: 'cosm-5',
+    name: 'Parfum Pur Oud Royal Mauritanien 100ml',
+    nameAr: 'عطر العود الملكي الموريتاني الفاخر',
+    category: 'Parfumerie de Luxe',
+    brand: 'Parfumerie Chinguetti',
+    price: 950,
+    costPrice: 580,
+    image: 'parfum_oud',
+    barcode: '6291100341',
+    sector: 'cosmetics',
+    stock: 20,
+    lotNumber: 'LOT-OUD-88',
+    expiryDate: '12/2028'
+  },
+  {
+    id: 'cosm-6',
+    name: 'Eau Micellaire Démaquillante Créaline H2O 500ml',
+    nameAr: 'ماء ميسيلار بايوديرما للبشرة الحساسة',
+    category: 'Démaquillants & Nettoyants',
+    brand: 'Bioderma Laboratoire',
+    price: 280,
+    costPrice: 190,
+    image: 'bioderma_h2o',
+    barcode: '3401575645',
+    sector: 'cosmetics',
+    stock: 50,
+    lotNumber: 'LOT-BIO-44',
+    expiryDate: '03/2027'
+  },
+  {
+    id: 'cosm-7',
+    name: 'Huile d\'Argan Pure Bio Première Pression 100ml',
+    nameAr: 'زيت أركان بيو نقي معصور على البارد',
+    category: 'Huiles & Soins Naturels',
+    brand: 'Bio Sahara',
+    price: 320,
+    costPrice: 210,
+    image: 'huile_argan',
+    barcode: '6111245012',
+    sector: 'cosmetics',
+    stock: 40,
+    lotNumber: 'LOT-ARG-12',
+    expiryDate: '01/2027'
+  },
+  {
+    id: 'cosm-8',
+    name: 'Savon Noir Artisanal Beldi à l\'Eucalyptus 250g',
+    nameAr: 'صابون بلدي مغربي بزيت الكالبتوس',
+    category: 'Bain & Hammam',
+    brand: 'Hammam Al-Baraka',
+    price: 120,
+    costPrice: 75,
+    image: 'savon_beldi',
+    barcode: '6111245019',
+    sector: 'cosmetics',
+    stock: 60,
+    lotNumber: 'LOT-BLD-09',
+    expiryDate: '10/2026'
+  },
+  {
+    id: 'cosm-9',
+    name: 'Vernis à Ongles Longue Tenue Brillance Miroir',
+    nameAr: 'طلاء أظافر لامع وثابت',
+    category: 'Ongles & Manucure',
+    brand: 'Essie Pro',
+    price: 150,
+    costPrice: 95,
+    image: 'vernis_ongles',
+    barcode: '3600531234',
+    sector: 'cosmetics',
+    stock: 70,
+    shades: ['#01 Rouge Carmin', '#02 Rose Poudré', '#03 Nude Sable', '#04 Cerise Noire'],
+    lotNumber: 'LOT-VRN-10',
+    expiryDate: '08/2027'
+  },
+  {
+    id: 'cosm-10',
+    name: 'Brume Parfumée Corps & Cheveux Vanille & Musc 250ml',
+    nameAr: 'معطر الجسم والشعر بالفانيليا والمسك',
+    category: 'Parfumerie de Luxe',
+    brand: 'Victoria Secret Inspiration',
+    price: 260,
+    costPrice: 170,
+    image: 'brume_parfumee',
+    barcode: '0667531122',
+    sector: 'cosmetics',
+    stock: 45,
+    lotNumber: 'LOT-BRM-05',
+    expiryDate: '05/2027'
+  },
+  {
+    id: 'cosm-11',
+    name: 'Crème Solaire Très Haute Protection SPF 50+ 50ml',
+    nameAr: 'واقي شمس أنثيليوس حماية فائقة',
+    category: 'Solaire & Parapharmacie',
+    brand: 'La Roche-Posay Anthelios',
+    price: 340,
+    costPrice: 230,
+    image: 'creme_solaire',
+    barcode: '3337875546',
+    sector: 'cosmetics',
+    stock: 40,
+    lotNumber: 'LOT-SOL-33',
+    expiryDate: '04/2027'
+  },
+  {
+    id: 'cosm-12',
+    name: 'Masque Capillaire Réparateur Kératine & Karité 500ml',
+    nameAr: 'ماسك كيراتين والشيا لترميم الشعر التالف',
+    category: 'Soins Cheveux',
+    brand: 'Kérastase Professional',
+    price: 290,
+    costPrice: 185,
+    image: 'masque_cheveux',
+    barcode: '3474630651',
+    sector: 'cosmetics',
+    stock: 35,
+    lotNumber: 'LOT-KRT-18',
+    expiryDate: '02/2027'
   }
 ];
 

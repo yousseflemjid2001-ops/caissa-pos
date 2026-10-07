@@ -5,7 +5,7 @@ import {
   Eye, EyeOff, Search, CheckCircle2,
   UtensilsCrossed, ShoppingBag, Store
 } from 'lucide-react';
-import type { Product } from '../data/mockData';
+import type { Product, SectorType } from '../data/mockData';
 import { INITIAL_PRODUCTS } from '../data/mockData';
 
 interface TableItem {
@@ -74,7 +74,7 @@ const RESTO_ZONES = ['Salle Principale', 'Terrasse Extérieure', 'Salon VIP Priv
 const STORE_LOCATIONS = ['Entrée Principale', 'Allée Centrale', 'Comptoir Froid', 'Tête de Caisse', 'Réserve Arrière'];
 
 export interface GestionScreenProps {
-  sector?: 'restaurant' | 'market';
+  sector?: SectorType;
   onProductsUpdated?: (products: Product[]) => void;
   initialProducts?: Product[];
 }
@@ -84,8 +84,8 @@ export const GestionScreen: React.FC<GestionScreenProps> = ({
   onProductsUpdated,
   initialProducts
 }) => {
-  // Mode de caisse actif dans le Back-Office (permet de gérer Restaurant OU Boutique/Boucherie)
-  const [activeSector, setActiveSector] = useState<'restaurant' | 'market'>(sector);
+  // Mode de caisse actif dans le Back-Office (permet de gérer Restaurant, Boutique, Boucherie ou Cosmétiques)
+  const [activeSector, setActiveSector] = useState<SectorType>(sector);
   const [activeTab, setActiveTab] = useState<'infrastructure' | 'cashiers' | 'articles' | 'settings'>('infrastructure');
 
   // 1A. GESTION DES TABLES (Restaurant)
