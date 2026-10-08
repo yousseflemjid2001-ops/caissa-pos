@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Navbar } from './components/Navbar';
 import { LandingPage } from './components/LandingPage';
 import { PosScreen } from './components/PosScreen';
@@ -16,7 +16,7 @@ import { ComptabiliteScreen } from './components/ComptabiliteScreen';
 import { INITIAL_PRODUCTS } from './data/mockData';
 import type { Product, Table, SectorType } from './data/mockData';
 import { AuthModal } from './components/AuthModal';
-import type { UserAccount } from './components/AuthModal';
+import type { UserAccount, PointDeVente } from './components/AuthModal';
 import { DatabaseDualEngineModal } from './components/DatabaseDualEngineModal';
 import { checkBackendStatus, getProductsApi, checkoutOrderApi } from './services/api';
 
@@ -33,7 +33,84 @@ export const App: React.FC = () => {
   const [sector, setSector] = useState<SectorType>('restaurant');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [cart, setCart] = useState<CartItem[]>([]);
+
+  // Gestion du Compte Établissement & Authentification avec Multi-Points de Vente
+  const [account, setAccount] = useState<UserAccount | null>(() => {
+    try {
+      const saved = localStorage.getItem('caissa_account');
+      if (!saved) return null;
+      const parsed: UserAccount = JSON.parse(saved);
+      // Auto-migration si le compte existant n'a pas encore de points de vente
+      if (!parsed.pointsDeVente || parsed.pointsDeVente.length === 0) {
+        const defaultPdvs: PointDeVente[] = [
+          {
+            id: 'pdv-1',
+            name: `${parsed.businessName} (Siège Principal)`,
+            nameAr: `${parsed.businessName} (الفرع الرئيسي)`,
+            sector: parsed.sector || 'market',
+            code: 'PDV-01',
+            address: parsed.city || 'Tevragh-Zeina, Nouakchott',
+            city: 'Nouakchott',
+            phone: parsed.phone,
+            caisseCount: 2,
+            isDefault: true
+          },
+          {
+            id: 'pdv-2',
+            name: `${parsed.businessName} (Succursale Ksar)`,
+            nameAr: `${parsed.businessName} (فرع القصر)`,
+            sector: parsed.sector || 'market',
+            code: 'PDV-02',
+            address: 'Marché Ksar, Nouakchott',
+            city: 'Nouakchott',
+            phone: parsed.phone,
+            caisseCount: 1,
+            isDefault: false
+          }
+        ];
+        parsed.pointsDeVente = defaultPdvs;
+        parsed.activePointDeVenteId = 'pdv-1';
+        try { localStorage.setItem('caissa_account', JSON.stringify(parsed)); } catch {}
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
+  });
+
+  // Point de Vente actif calculé
+  const activePointDeVente = useMemo<PointDeVente | null>(() => {
+    if (!account || !account.pointsDeVente || account.pointsDeVente.length === 0) return null;
+    return account.pointsDeVente.find(p => p.id === account.activePointDeVenteId) || account.pointsDeVente[0];
+  }, [account]);
+
+  // Gestion multi-paniers STRICTEMENT CLOISONNÉS par Point de Vente
+  const [cartsByPdv, setCartsByPdv] = useState<Record<string, CartItem[]>>(() => {
+    try {
+      const saved = localStorage.getItem('caissa_carts_by_pdv');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const activePdvKey = activePointDeVente?.id || 'pdv-default';
+  const cart = useMemo(() => cartsByPdv[activePdvKey] || [], [cartsByPdv, activePdvKey]);
+
+  const setCart: React.Dispatch<React.SetStateAction<CartItem[]>> = (action) => {
+    setCartsByPdv(prev => {
+      const currentList = prev[activePdvKey] || [];
+      const updatedList = typeof action === 'function' ? action(currentList) : action;
+      const next = { ...prev, [activePdvKey]: updatedList };
+      try {
+        localStorage.setItem('caissa_carts_by_pdv', JSON.stringify(next));
+      } catch (e) {
+        console.warn(e);
+      }
+      return next;
+    });
+  };
+
   const [notification, setNotification] = useState<string | null>(null);
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
   const [unsyncedOrdersCount, setUnsyncedOrdersCount] = useState<number>(0);
@@ -43,30 +120,23 @@ export const App: React.FC = () => {
     role: 'Patron'
   });
 
-  // Gestion du Compte Restaurant & Authentification
-  const [account, setAccount] = useState<UserAccount | null>(() => {
-    try {
-      const saved = localStorage.getItem('caissa_account');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'register' | 'login'>('register');
   const [authModalSector, setAuthModalSector] = useState<SectorType>('restaurant');
   const [isDatabaseModalOpen, setIsDatabaseModalOpen] = useState<boolean>(false);
   const [isSimulatingOffline, setIsSimulatingOffline] = useState<boolean>(false);
 
-  // Si un compte restaurant est déjà enregistré, aligner le secteur
+  // Aligner le secteur sur le Point de Vente actif si un compte est connecté
   useEffect(() => {
-    if (account?.sector) {
+    if (activePointDeVente?.sector) {
+      setSector(activePointDeVente.sector);
+    } else if (account?.sector) {
       setSector(account.sector);
     }
     if (account?.ownerName) {
       setCurrentCashier({ name: account.ownerName, role: 'Patron' });
     }
-  }, [account]);
+  }, [activePointDeVente, account]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -228,11 +298,59 @@ export const App: React.FC = () => {
     }
   }, [account, currentTab]);
 
+  const handleSwitchPointDeVente = (pdvId: string) => {
+    if (!account || !account.pointsDeVente) return;
+    const targetPdv = account.pointsDeVente.find(p => p.id === pdvId);
+    if (!targetPdv) return;
+
+    const updatedAccount: UserAccount = {
+      ...account,
+      activePointDeVenteId: pdvId
+    };
+    setAccount(updatedAccount);
+    setSector(targetPdv.sector);
+    try {
+      localStorage.setItem('caissa_account', JSON.stringify(updatedAccount));
+    } catch (e) {
+      console.warn(e);
+    }
+    showToast(`🏪 Point de Vente actif : ${targetPdv.name} (${targetPdv.code}). Caisse et données 100% isolées.`);
+  };
+
+  const handleAddPointDeVente = (newPdvData: Omit<PointDeVente, 'id'>) => {
+    if (!account) return;
+    const newId = `pdv-${Date.now()}`;
+    const newPdv: PointDeVente = {
+      ...newPdvData,
+      id: newId
+    };
+    const existing = account.pointsDeVente || [];
+    const updatedList = [...existing, newPdv];
+    const updatedAccount: UserAccount = {
+      ...account,
+      pointsDeVente: updatedList,
+      activePointDeVenteId: newId
+    };
+    setAccount(updatedAccount);
+    setSector(newPdv.sector);
+    try {
+      localStorage.setItem('caissa_account', JSON.stringify(updatedAccount));
+    } catch (e) {
+      console.warn(e);
+    }
+    showToast(`✨ Nouveau Point de Vente activé : ${newPdv.name} (${newPdv.code}) !`);
+  };
+
   const handleAccountSuccess = (newAccount: UserAccount) => {
     setAccount(newAccount);
-    setSector(newAccount.sector);
+    const activePdv = newAccount.pointsDeVente?.find(p => p.id === newAccount.activePointDeVenteId) || newAccount.pointsDeVente?.[0];
+    if (activePdv) {
+      setSector(activePdv.sector);
+    } else {
+      setSector(newAccount.sector);
+    }
     setCurrentCashier({ name: newAccount.ownerName, role: 'Patron' });
-    showToast(`Bienvenue dans votre restaurant : ${newAccount.businessName} (Essai 14j activé)`);
+    showToast(`Bienvenue dans votre établissement : ${newAccount.businessName} (Essai 14j activé)`);
     setCurrentTab('pos');
   };
 
@@ -336,6 +454,11 @@ export const App: React.FC = () => {
               showToast(`Opérateur de caisse actif : ${user.name} (${user.role})`);
             }}
             account={account}
+            activePointDeVente={activePointDeVente}
+            pointsDeVente={account?.pointsDeVente || []}
+            onSwitchPointDeVente={handleSwitchPointDeVente}
+            onAddPointDeVente={handleAddPointDeVente}
+            cartsByPdv={cartsByPdv}
             onLogout={handleLogout}
             onOpenAuthModal={() => handleOpenAuthModal('login')}
             unsyncedOrdersCount={unsyncedOrdersCount}
@@ -355,6 +478,7 @@ export const App: React.FC = () => {
                 selectedTable={selectedTable}
                 onClearTable={handleClearTable}
                 account={account}
+                activePointDeVente={activePointDeVente}
               />
             )}
 
@@ -412,11 +536,20 @@ export const App: React.FC = () => {
                 sector={sector}
                 onProductsUpdated={(updated) => setProducts(updated)}
                 initialProducts={products}
+                account={account}
+                activePointDeVente={activePointDeVente}
+                pointsDeVente={account?.pointsDeVente || []}
+                onAddPointDeVente={handleAddPointDeVente}
               />
             )}
 
             {currentTab === 'compta' && (
-              <ComptabiliteScreen sector={sector} />
+              <ComptabiliteScreen 
+                sector={sector} 
+                account={account}
+                activePointDeVente={activePointDeVente}
+                pointsDeVente={account?.pointsDeVente || []}
+              />
             )}
           </main>
         </>

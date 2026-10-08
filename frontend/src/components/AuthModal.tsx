@@ -21,6 +21,19 @@ import {
 import { registerTenantApi, loginUserApi } from '../services/api';
 import type { SectorType } from '../data/mockData';
 
+export interface PointDeVente {
+  id: string;
+  name: string;
+  nameAr?: string;
+  sector: SectorType;
+  code: string;
+  address: string;
+  city: string;
+  phone?: string;
+  caisseCount: number;
+  isDefault?: boolean;
+}
+
 export interface UserAccount {
   id: string;
   businessName: string;
@@ -36,6 +49,8 @@ export interface UserAccount {
   isTrial: boolean;
   createdAt: string;
   currency: string;
+  pointsDeVente?: PointDeVente[];
+  activePointDeVenteId?: string;
 }
 
 interface AuthModalProps {
@@ -123,7 +138,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         pinCode: '1234'
       }).catch(() => null);
 
-      setTimeout(() => {
+        const initialPdvs: PointDeVente[] = [
+          {
+            id: 'pdv-1',
+            name: `${businessName.trim()} (Siège Principal)`,
+            nameAr: `${businessName.trim()} (الفرع الرئيسي)`,
+            sector: sector,
+            code: 'PDV-01',
+            address: city || 'Tevragh-Zeina, Nouakchott',
+            city: city || 'Nouakchott',
+            phone: fullPhone,
+            caisseCount: 2,
+            isDefault: true
+          },
+          {
+            id: 'pdv-2',
+            name: `${businessName.trim()} (Succursale Ksar)`,
+            nameAr: `${businessName.trim()} (فرع القصر)`,
+            sector: sector,
+            code: 'PDV-02',
+            address: 'Marché Ksar, Nouakchott',
+            city: 'Nouakchott',
+            phone: fullPhone,
+            caisseCount: 1,
+            isDefault: false
+          }
+        ];
+
         const newAccount: UserAccount = {
           id: res?.tenant?.id || `rest-${Date.now()}`,
           businessName: businessName.trim(),
@@ -138,7 +179,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           trialDaysRemaining: 14,
           isTrial: true,
           createdAt: new Date().toISOString(),
-          currency: phonePrefix === '+216' ? 'TND' : 'MRU'
+          currency: phonePrefix === '+216' ? 'TND' : 'MRU',
+          pointsDeVente: initialPdvs,
+          activePointDeVenteId: 'pdv-1'
         };
 
         localStorage.setItem('caissa_account', JSON.stringify(newAccount));
@@ -146,7 +189,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setOnboardingStep(null);
         onAccountSuccess(newAccount);
         onClose();
-      }, 2100);
 
     } catch (err: any) {
       setError(err?.message || "Une erreur est survenue lors de la création de compte.");
@@ -173,29 +215,56 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         pinCode: loginPassword || '1234'
       }).catch(() => null);
 
-      setTimeout(() => {
-        const account: UserAccount = {
-          id: res?.tenant?.id || `rest-${Date.now()}`,
-          businessName: res?.tenant?.businessName || (loginIdentifier.includes('@') ? 'Restaurant Le Palmier' : 'Chwaya Al Baraka'),
-          ownerName: res?.user?.fullName || 'Sidi Mohamed (Patron)',
-          email: res?.user?.email || loginIdentifier,
+      const defaultPdvs: PointDeVente[] = [
+        {
+          id: 'pdv-1',
+          name: `${res?.tenant?.businessName || (loginIdentifier.includes('@') ? 'Restaurant Le Palmier' : 'Chwaya Al Baraka')} (Siège Principal)`,
+          nameAr: `${res?.tenant?.businessName || 'المقر الرئيسي'} (الفرع 1)`,
+          sector: (res?.tenant?.sector as SectorType) || sector,
+          code: 'PDV-01',
+          address: res?.tenant?.city || 'Tevragh-Zeina, Nouakchott',
+          city: 'Nouakchott',
           phone: res?.tenant?.phone || '+222 22 14 55 88',
-          sector: res?.tenant?.sector || sector,
-          restaurantType: res?.tenant?.restaurantType || 'Restauration Traditionnelle & Grillades',
-          city: res?.tenant?.city || 'Nouakchott (Tevragh-Zeina)',
-          tableCount: res?.tenant?.tableCount || 10,
-          subscriptionPlan: res?.tenant?.subscriptionPlan || 'ESSAI_GRATUIT_14_JOURS',
-          trialDaysRemaining: 14,
-          isTrial: true,
-          createdAt: new Date().toISOString(),
-          currency: 'MRU'
-        };
+          caisseCount: 2,
+          isDefault: true
+        },
+        {
+          id: 'pdv-2',
+          name: `${res?.tenant?.businessName || (loginIdentifier.includes('@') ? 'Restaurant Le Palmier' : 'Chwaya Al Baraka')} (Succursale Ksar)`,
+          nameAr: `${res?.tenant?.businessName || 'الفرع 2'} (فرع القصر)`,
+          sector: (res?.tenant?.sector as SectorType) || sector,
+          code: 'PDV-02',
+          address: 'Marché Ksar, Nouakchott',
+          city: 'Nouakchott',
+          phone: res?.tenant?.phone || '+222 22 14 55 88',
+          caisseCount: 1,
+          isDefault: false
+        }
+      ];
 
-        localStorage.setItem('caissa_account', JSON.stringify(account));
-        setLoading(false);
-        onAccountSuccess(account);
-        onClose();
-      }, 800);
+      const account: UserAccount = {
+        id: res?.tenant?.id || `rest-${Date.now()}`,
+        businessName: res?.tenant?.businessName || (loginIdentifier.includes('@') ? 'Restaurant Le Palmier' : 'Chwaya Al Baraka'),
+        ownerName: res?.user?.fullName || 'Sidi Mohamed (Patron)',
+        email: res?.user?.email || loginIdentifier,
+        phone: res?.tenant?.phone || '+222 22 14 55 88',
+        sector: res?.tenant?.sector || sector,
+        restaurantType: res?.tenant?.restaurantType || 'Restauration Traditionnelle & Grillades',
+        city: res?.tenant?.city || 'Nouakchott (Tevragh-Zeina)',
+        tableCount: res?.tenant?.tableCount || 10,
+        subscriptionPlan: res?.tenant?.subscriptionPlan || 'ESSAI_GRATUIT_14_JOURS',
+        trialDaysRemaining: 14,
+        isTrial: true,
+        createdAt: new Date().toISOString(),
+        currency: 'MRU',
+        pointsDeVente: defaultPdvs,
+        activePointDeVenteId: 'pdv-1'
+      };
+
+      localStorage.setItem('caissa_account', JSON.stringify(account));
+      setLoading(false);
+      onAccountSuccess(account);
+      onClose();
 
     } catch (err: any) {
       setError(err?.message || "Identifiants invalides.");

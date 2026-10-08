@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { SectorType } from '../data/mockData';
+import type { PointDeVente, UserAccount } from './AuthModal';
 
 // Types comptables professionnels (Partie double & Système Financier International)
 export interface JournalEntry {
@@ -22,6 +23,8 @@ export interface JournalEntry {
   compteCreditNom: string;
   montant: number;
   statut: 'VALIDE' | 'BROUILLON';
+  pointDeVenteId?: string;
+  pointDeVenteNom?: string;
 }
 
 export interface DepenseItem {
@@ -34,6 +37,8 @@ export interface DepenseItem {
   beneficiaire: string;
   justificatifRef?: string;
   statut: 'PAYE' | 'A_PAYER';
+  pointDeVenteId?: string;
+  pointDeVenteNom?: string;
 }
 
 export interface FournisseurFacture {
@@ -46,6 +51,8 @@ export interface FournisseurFacture {
   soldeRestant: number;
   statut: 'SOLDE' | 'PARTIEL' | 'IMPAYE';
   articlesDescription: string;
+  pointDeVenteId?: string;
+  pointDeVenteNom?: string;
 }
 
 // Données initiales réalistes pour un Hannout / Boutique à Nouakchott
@@ -250,13 +257,22 @@ const INITIAL_FOURNISSEURS_FACTURES: FournisseurFacture[] = [
 
 export interface ComptabiliteScreenProps {
   sector?: SectorType;
+  account?: UserAccount | null;
+  activePointDeVente?: PointDeVente | null;
+  pointsDeVente?: PointDeVente[];
 }
 
 export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
-  sector: _sector = 'market'
+  sector: _sector = 'market',
+  account,
+  activePointDeVente,
+  pointsDeVente = []
 }) => {
   const { i18n } = useTranslation();
   const isArabic = i18n.language === 'ar';
+
+  // Sélecteur de périmètre succursale (Point de vente actif isolé ou Vue consolidée multi-branches)
+  const [pdvScope, setPdvScope] = useState<'active' | 'consolidated'>('active');
 
   // Navigation interne du module Comptabilité
   const [activeTab, setActiveTab] = useState<'kpis' | 'journal' | 'pl' | 'bilan' | 'depenses' | 'fournisseurs' | 'tva'>('kpis');
@@ -327,10 +343,32 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
     setTimeout(() => setToastMsg(null), 3500);
   };
 
+  // Scoping des données selon le point de vente sélectionné
+  const scopedEntries = useMemo(() => {
+    if (!account || pdvScope === 'consolidated' || !activePointDeVente) {
+      return journalEntries;
+    }
+    return journalEntries.filter(e => !e.pointDeVenteId || e.pointDeVenteId === activePointDeVente.id);
+  }, [journalEntries, account, pdvScope, activePointDeVente]);
+
+  const scopedDepenses = useMemo(() => {
+    if (!account || pdvScope === 'consolidated' || !activePointDeVente) {
+      return depenses;
+    }
+    return depenses.filter(d => !d.pointDeVenteId || d.pointDeVenteId === activePointDeVente.id);
+  }, [depenses, account, pdvScope, activePointDeVente]);
+
+  const scopedFournisseurs = useMemo(() => {
+    if (!account || pdvScope === 'consolidated' || !activePointDeVente) {
+      return fournisseurFactures;
+    }
+    return fournisseurFactures.filter(f => !f.pointDeVenteId || f.pointDeVenteId === activePointDeVente.id);
+  }, [fournisseurFactures, account, pdvScope, activePointDeVente]);
+
   // Calculs financiers récapitulatifs pour Hannout / Boutique
   const financialMetrics = useMemo(() => {
     // Chiffre d'Affaires Brut (Ventes)
-    const totalVentes = journalEntries
+    const totalVentes = scopedEntries
       .filter(e => e.compteCredit.startsWith('70') && e.statut === 'VALIDE')
       .reduce((sum, e) => sum + e.montant, 0);
 
@@ -342,7 +380,7 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
     const tauxMarge = totalVentes > 0 ? ((margeBrute / totalVentes) * 100).toFixed(1) : '0';
 
     // Total des Dépenses d'exploitation (Charges d'exploitation)
-    const totalCharges = depenses.reduce((sum, d) => sum + d.montant, 0);
+    const totalCharges = scopedDepenses.reduce((sum, d) => sum + d.montant, 0);
 
     // Résultat Net Comptable (Bénéfice Réel après charges)
     const resultatNet = margeBrute - totalCharges;
@@ -363,7 +401,7 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
     const valeurStock = 142500;
 
     // Dettes Fournisseurs (Ce que le hannout doit encore aux grossistes)
-    const dettesFournisseurs = fournisseurFactures.reduce((sum, f) => sum + f.soldeRestant, 0);
+    const dettesFournisseurs = scopedFournisseurs.reduce((sum, f) => sum + f.soldeRestant, 0);
 
     // TVA Déductible & Collectée (16% RIM)
     const tvaCollectee = Math.round(totalVentes * 0.16);
@@ -388,7 +426,7 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
       tvaDeductible,
       tvaDue
     };
-  }, [journalEntries, depenses, fournisseurFactures]);
+  }, [scopedEntries, scopedDepenses, scopedFournisseurs]);
 
   // Sauvegarder dans LocalStorage
   const handleSaveEntry = (e: React.FormEvent) => {
@@ -409,7 +447,9 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
       compteCredit: newEntryData.compteCredit,
       compteCreditNom: newEntryData.compteCreditNom,
       montant: parseFloat(newEntryData.montant),
-      statut: 'VALIDE'
+      statut: 'VALIDE',
+      pointDeVenteId: activePointDeVente?.id,
+      pointDeVenteNom: activePointDeVente?.name
     };
 
     const updated = [entry, ...journalEntries];
@@ -446,7 +486,9 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
       modePaiement: newDepenseData.modePaiement,
       beneficiaire: newDepenseData.beneficiaire || 'Divers',
       justificatifRef: newDepenseData.justificatifRef || `JUST-${Date.now().toString().slice(-4)}`,
-      statut: 'PAYE'
+      statut: 'PAYE',
+      pointDeVenteId: activePointDeVente?.id,
+      pointDeVenteNom: activePointDeVente?.name
     };
 
     const updatedDep = [depense, ...depenses];
@@ -465,7 +507,9 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
       compteCredit: depense.modePaiement === 'BANKILY' ? '5171' : '5311',
       compteCreditNom: depense.modePaiement === 'BANKILY' ? 'Portefeuille Mobile Bankily Pro' : 'Caisse Espèces',
       montant: depense.montant,
-      statut: 'VALIDE'
+      statut: 'VALIDE',
+      pointDeVenteId: activePointDeVente?.id,
+      pointDeVenteNom: activePointDeVente?.name
     };
 
     const updatedJourn = [autoEntry, ...journalEntries];
@@ -487,7 +531,7 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
 
   // Filtrage du journal des écritures
   const filteredEntries = useMemo(() => {
-    return journalEntries.filter(entry => {
+    return scopedEntries.filter(entry => {
       const matchSearch = entry.libelle.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.pieceRef.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.compteDebitNom.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -495,7 +539,7 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
       const matchJournal = journalFilter === 'ALL' || entry.journal === journalFilter;
       return matchSearch && matchJournal;
     });
-  }, [journalEntries, searchQuery, journalFilter]);
+  }, [scopedEntries, searchQuery, journalFilter]);
 
   // Export CSV Grand Livre
   const handleExportCSV = () => {
@@ -707,6 +751,108 @@ export const ComptabiliteScreen: React.FC<ComptabiliteScreenProps> = ({
           </button>
         </div>
       </div>
+
+      {/* SÉPARATION DES POINTS DE VENTE (MULTI-SUCCURSALES) */}
+      {account && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.06) 100%)',
+          border: '1.5px solid rgba(16, 185, 129, 0.35)',
+          borderRadius: '14px',
+          padding: '14px 20px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: '#059669',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 4px 10px rgba(5, 150, 105, 0.3)'
+            }}>
+              <Building2 size={20} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  {isArabic ? 'عزل المحاسبة والسيولة بين نقاط البيع' : 'Cloisonnement Comptable & Trésorerie par Succursale'}
+                </span>
+                <span style={{
+                  background: '#059669',
+                  color: '#ffffff',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  padding: '2px 8px',
+                  borderRadius: '6px'
+                }}>
+                  {activePointDeVente?.code || 'PDV-01'}
+                </span>
+              </div>
+              <p style={{ margin: '3px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                {isArabic
+                  ? `نقطة البيع النشطة: ${activePointDeVente?.nameAr || activePointDeVente?.name || 'الفرع الرئيسي'} — الحسابات مفصولة بنسبة 100% عن باقي الفروع`
+                  : `Établissement actif : ${activePointDeVente?.name || 'Siège Principal'} — Écritures, caisse et résultats strictement isolés des autres succursales.`}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+              {isArabic ? 'نطاق العرض :' : 'Périmètre :'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPdvScope('active')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                border: pdvScope === 'active' ? '1.5px solid #059669' : '1px solid var(--border-glass)',
+                background: pdvScope === 'active' ? '#059669' : 'var(--bg-secondary)',
+                color: pdvScope === 'active' ? '#ffffff' : 'var(--text-main)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>📍</span>
+              <span>{isArabic ? 'الفرع النشط فقط (معزول)' : `${activePointDeVente?.name || 'Succursale Active'} (Isolé)`}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPdvScope('consolidated')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                border: pdvScope === 'consolidated' ? '1.5px solid #2563eb' : '1px solid var(--border-glass)',
+                background: pdvScope === 'consolidated' ? '#2563eb' : 'var(--bg-secondary)',
+                color: pdvScope === 'consolidated' ? '#ffffff' : 'var(--text-main)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>🌐</span>
+              <span>{isArabic ? `عرض موحد (${pointsDeVente.length || 2} فروع)` : `Consolidé Entreprise (${pointsDeVente.length || 2} Succursales)`}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* NAVIGATION INTERNE COMPTABLE : Onglets modernes */}
       <div style={{

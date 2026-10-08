@@ -23,11 +23,14 @@ import {
   Scale,
   Sparkles,
   Globe,
-  Calculator
+  Calculator,
+  Building2,
+  Plus,
+  ShieldCheck
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { loginPinApi } from '../services/api';
-import type { UserAccount } from './AuthModal';
+import type { UserAccount, PointDeVente } from './AuthModal';
 import type { SectorType } from '../data/mockData';
 
 interface NavbarProps {
@@ -47,6 +50,12 @@ interface NavbarProps {
   unsyncedOrdersCount?: number;
   onTriggerSync?: () => void;
   onOpenDatabaseModal?: () => void;
+  // Multi-Points de Vente & Cloisonnement Strict
+  activePointDeVente?: PointDeVente | null;
+  pointsDeVente?: PointDeVente[];
+  onSwitchPointDeVente?: (pdvId: string) => void;
+  onAddPointDeVente?: (newPdv: Omit<PointDeVente, 'id'>) => void;
+  cartsByPdv?: Record<string, any[]>;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -65,11 +74,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuthModal,
   unsyncedOrdersCount = 0,
   onTriggerSync,
-  onOpenDatabaseModal
+  onOpenDatabaseModal,
+  activePointDeVente,
+  pointsDeVente = [],
+  onSwitchPointDeVente,
+  onAddPointDeVente,
+  cartsByPdv = {}
 }) => {
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState<boolean>(false);
   const [isGestionMenuOpen, setIsGestionMenuOpen] = useState<boolean>(false);
+  const [isPdvDropdownOpen, setIsPdvDropdownOpen] = useState<boolean>(false);
+  const [isAddPdvModalOpen, setIsAddPdvModalOpen] = useState<boolean>(false);
+  const [newPdvName, setNewPdvName] = useState<string>('');
+  const [newPdvSector, setNewPdvSector] = useState<SectorType>('market');
+  const [newPdvAddress, setNewPdvAddress] = useState<string>('Tevragh-Zeina, Nouakchott');
+  const [newPdvCaisses, setNewPdvCaisses] = useState<number>(1);
   const [pinCode, setPinCode] = useState<string>('');
   const [pinError, setPinError] = useState<string | null>(null);
   const { t, i18n } = useTranslation();
@@ -191,150 +211,326 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <div style={{ width: '1px', height: '22px', background: 'var(--border-glass)' }} />
 
-        {/* Active Account Pill */}
+        {/* Active Account Pill & Dedicated Point of Sale Selector */}
         {account ? (
-          <button
-            onClick={() => setIsAccountModalOpen(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              background: 'var(--bg-tertiary)',
-              border: '1px solid var(--border-glass)',
-              color: 'var(--text-main)',
-              cursor: 'pointer',
-              fontSize: '0.74rem'
-            }}
-            title="Gérer les informations de l'établissement"
-          >
-            <UtensilsCrossed size={12} color="#10b981" />
-            <span style={{ fontWeight: 700, maxWidth: '130px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {account.businessName}
-            </span>
-            <span style={{
-              background: '#059669',
-              color: '#ffffff',
-              fontWeight: 800,
-              fontSize: '0.58rem',
-              padding: '1px 4px',
-              borderRadius: '3px'
-            }}>
-              14j
-            </span>
-          </button>
-        ) : (
-          <button
-            onClick={onOpenAuthModal}
-            className="btn-primary"
-            style={{
-              padding: '4px 8px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              borderRadius: '6px'
-            }}
-          >
-            <span>{t('nav.login') || 'Créer Compte'}</span>
-          </button>
-        )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}>
+            {/* Account Pill */}
+            <button
+              onClick={() => setIsAccountModalOpen(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-glass)',
+                color: 'var(--text-main)',
+                cursor: 'pointer',
+                fontSize: '0.74rem'
+              }}
+              title="Gérer les informations de l'entreprise et succursales"
+            >
+              <Building2 size={13} color="#10b981" />
+              <span style={{ fontWeight: 800, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {account.businessName}
+              </span>
+              <span style={{
+                background: '#059669',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.58rem',
+                padding: '1px 4px',
+                borderRadius: '3px'
+              }}>
+                14j
+              </span>
+            </button>
 
-        {/* Sector Switcher Segmented Control */}
-        <div style={{
-          display: 'flex',
-          background: 'var(--bg-tertiary)',
-          padding: '2px',
-          borderRadius: '6px',
-          border: '1px solid var(--border-glass)'
-        }}>
-          <button
-            onClick={() => setSector('restaurant')}
-            style={{
+            {/* SEPARATED POINT OF SALE (PDV) SWITCHER */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setIsPdvDropdownOpen(prev => !prev)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  background: isPdvDropdownOpen ? 'rgba(16, 185, 129, 0.18)' : 'var(--bg-tertiary)',
+                  border: isPdvDropdownOpen ? '1px solid #10b981' : '1px solid var(--border-glass)',
+                  color: 'var(--text-main)',
+                  cursor: 'pointer',
+                  fontSize: '0.74rem',
+                  boxShadow: isPdvDropdownOpen ? '0 0 10px rgba(16, 185, 129, 0.25)' : 'none'
+                }}
+                title="Changer de Point de Vente (Caisses et Données 100% Séparées)"
+              >
+                <div style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: '#10b981',
+                  boxShadow: '0 0 6px #10b981'
+                }} />
+                <Store size={13} color="#10b981" />
+                <span style={{ fontWeight: 800, maxWidth: '135px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {activePointDeVente ? activePointDeVente.name : 'Point de Vente 1'}
+                </span>
+                <span style={{
+                  background: sector === 'restaurant' ? '#ea580c' : (sector === 'market' ? '#059669' : (sector === 'butcher' ? '#d97706' : '#9333ea')),
+                  color: '#ffffff',
+                  fontSize: '0.58rem',
+                  fontWeight: 800,
+                  padding: '1px 5px',
+                  borderRadius: '3px'
+                }}>
+                  {activePointDeVente?.code || 'PDV-01'}
+                </span>
+                <ChevronDown size={11} color="var(--text-muted)" style={{ transform: isPdvDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              </button>
+
+              {/* Point of Sale Dropdown Menu */}
+              {isPdvDropdownOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  marginTop: '8px',
+                  width: '320px',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '12px',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.45)',
+                  padding: '12px',
+                  zIndex: 100,
+                  backdropFilter: 'blur(16px)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid var(--border-glass)' }}>
+                    <div>
+                      <div style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                        Points de Vente ({pointsDeVente.length || 1})
+                      </div>
+                      <div style={{ fontSize: '0.62rem', color: '#10b981', fontWeight: 700 }}>
+                        🔒 Données et caisses 100% isolées par succursale
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsPdvDropdownOpen(false)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  {/* List of Points of Sale */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '240px', overflowY: 'auto' }}>
+                    {pointsDeVente.map((pdv) => {
+                      const isActive = pdv.id === activePointDeVente?.id;
+                      const pdvCartCount = cartsByPdv[pdv.id]?.reduce((sum: number, it: any) => sum + it.quantity, 0) || 0;
+                      return (
+                        <div
+                          key={pdv.id}
+                          onClick={() => {
+                            if (onSwitchPointDeVente) onSwitchPointDeVente(pdv.id);
+                            setIsPdvDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: '8px 10px',
+                            borderRadius: '8px',
+                            background: isActive ? 'rgba(16, 185, 129, 0.12)' : 'var(--bg-tertiary)',
+                            border: isActive ? '1px solid #10b981' : '1px solid transparent',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '8px',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: isActive ? '#10b981' : 'var(--text-dim)',
+                              boxShadow: isActive ? '0 0 6px #10b981' : 'none'
+                            }} />
+                            <div>
+                              <div style={{ fontSize: '0.74rem', fontWeight: 800, color: isActive ? '#10b981' : 'var(--text-main)' }}>
+                                {pdv.name}
+                              </div>
+                              <div style={{ fontSize: '0.62rem', color: 'var(--text-dim)' }}>
+                                📍 {pdv.address || pdv.city} • {pdv.caisseCount || 1} caisse(s)
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                            <span style={{
+                              fontSize: '0.58rem',
+                              fontWeight: 800,
+                              padding: '1px 5px',
+                              borderRadius: '3px',
+                              background: pdv.sector === 'restaurant' ? 'rgba(234, 88, 12, 0.2)' : (pdv.sector === 'market' ? 'rgba(5, 150, 105, 0.2)' : 'rgba(217, 119, 6, 0.2)'),
+                              color: pdv.sector === 'restaurant' ? '#ea580c' : (pdv.sector === 'market' ? '#10b981' : '#d97706')
+                            }}>
+                              {pdv.code}
+                            </span>
+                            {pdvCartCount > 0 && (
+                              <span style={{ fontSize: '0.6rem', color: '#f59e0b', fontWeight: 700 }}>
+                                🛒 {pdvCartCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Add New Point of Sale Button */}
+                  <button
+                    onClick={() => {
+                      setIsPdvDropdownOpen(false);
+                      setIsAddPdvModalOpen(true);
+                    }}
+                    style={{
+                      width: '100%',
+                      marginTop: '8px',
+                      padding: '8px',
+                      borderRadius: '8px',
+                      background: 'none',
+                      border: '1px dashed #10b981',
+                      color: '#10b981',
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Plus size={13} />
+                    <span>+ Ajouter un Point de Vente / Succursale</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={onOpenAuthModal}
+              className="btn-primary"
+              style={{
+                padding: '4px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                borderRadius: '6px'
+              }}
+            >
+              <span>{t('nav.login') || 'Créer Compte'}</span>
+            </button>
+
+            {/* Sector Switcher Segmented Control (Fallback Mode Visiteur) */}
+            <div style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '3px 7px',
-              borderRadius: '4px',
-              fontSize: '0.7rem',
-              fontWeight: sector === 'restaurant' ? 700 : 500,
-              background: sector === 'restaurant' ? '#ea580c' : 'transparent',
-              color: sector === 'restaurant' ? '#fff' : 'var(--text-muted)',
-              transition: 'all 0.15s ease'
-            }}
-            title="Mode Restauration & Chwaya"
-          >
-            <UtensilsCrossed size={11} />
-            <span>{i18n.language === 'ar' ? 'مطاعم' : 'Resto'}</span>
-          </button>
-          <button
-            onClick={() => setSector('market')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '3px 7px',
-              borderRadius: '4px',
-              fontSize: '0.7rem',
-              fontWeight: sector === 'market' ? 700 : 500,
-              background: sector === 'market' ? '#059669' : 'transparent',
-              color: sector === 'market' ? '#fff' : 'var(--text-muted)',
-              transition: 'all 0.15s ease'
-            }}
-            title="Mode Boutique, Épicerie & Hanout"
-          >
-            <ShoppingBag size={11} />
-            <span>{i18n.language === 'ar' ? 'بقالة' : 'Boutique'}</span>
-          </button>
-          <button
-            onClick={() => setSector('butcher')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '3px 7px',
-              borderRadius: '4px',
-              fontSize: '0.7rem',
-              fontWeight: sector === 'butcher' ? 700 : 500,
-              background: sector === 'butcher' ? '#d97706' : 'transparent',
-              color: sector === 'butcher' ? '#fff' : 'var(--text-muted)',
-              transition: 'all 0.15s ease'
-            }}
-            title="Mode Boucherie, Poisson & Pesée au Kg"
-          >
-            <Scale size={11} />
-            <span>{i18n.language === 'ar' ? 'ميزان' : 'Pesée'}</span>
-          </button>
-          <button
-            onClick={() => setSector('cosmetics')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '3px 7px',
-              borderRadius: '4px',
-              fontSize: '0.7rem',
-              fontWeight: sector === 'cosmetics' ? 700 : 500,
-              background: sector === 'cosmetics' ? '#0284c7' : 'transparent',
-              color: sector === 'cosmetics' ? '#fff' : 'var(--text-muted)',
-              transition: 'all 0.15s ease'
-            }}
-            title="Mode Cosmétiques & Parapharmacie"
-          >
-            <Sparkles size={11} />
-            <span>{i18n.language === 'ar' ? 'تجميل' : 'Beauté'}</span>
-          </button>
-        </div>
+              background: 'var(--bg-tertiary)',
+              padding: '2px',
+              borderRadius: '6px',
+              border: '1px solid var(--border-glass)'
+            }}>
+              <button
+                onClick={() => setSector('restaurant')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '3px 7px',
+                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  fontWeight: sector === 'restaurant' ? 700 : 500,
+                  background: sector === 'restaurant' ? '#ea580c' : 'transparent',
+                  color: sector === 'restaurant' ? '#fff' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+                title="Mode Restauration & Chwaya"
+              >
+                <UtensilsCrossed size={11} />
+                <span>{i18n.language === 'ar' ? 'مطاعم' : 'Resto'}</span>
+              </button>
+              <button
+                onClick={() => setSector('market')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '3px 7px',
+                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  fontWeight: sector === 'market' ? 700 : 500,
+                  background: sector === 'market' ? '#059669' : 'transparent',
+                  color: sector === 'market' ? '#fff' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+                title="Mode Boutique, Épicerie & Hanout"
+              >
+                <ShoppingBag size={11} />
+                <span>{i18n.language === 'ar' ? 'بقالة' : 'Boutique'}</span>
+              </button>
+              <button
+                onClick={() => setSector('butcher')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '3px 7px',
+                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  fontWeight: sector === 'butcher' ? 700 : 500,
+                  background: sector === 'butcher' ? '#d97706' : 'transparent',
+                  color: sector === 'butcher' ? '#fff' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+                title="Mode Boucherie, Poisson & Pesée au Kg"
+              >
+                <Scale size={11} />
+                <span>{i18n.language === 'ar' ? 'ميزان' : 'Pesée'}</span>
+              </button>
+              <button
+                onClick={() => setSector('cosmetics')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '3px 7px',
+                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  fontWeight: sector === 'cosmetics' ? 700 : 500,
+                  background: sector === 'cosmetics' ? '#0284c7' : 'transparent',
+                  color: sector === 'cosmetics' ? '#fff' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+                title="Mode Cosmétiques & Parapharmacie"
+              >
+                <Sparkles size={11} />
+                <span>{i18n.language === 'ar' ? 'تجميل' : 'Beauté'}</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* 2. Center: Sleek Unified Navigation Tabs */}
@@ -1080,6 +1276,99 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
+            {/* Enterprise Points of Sale (Succursales & Cloisonnement) */}
+            <div style={{
+              background: 'var(--bg-tertiary)',
+              border: '1px solid var(--border-glass)',
+              borderRadius: '10px',
+              padding: '12px',
+              marginBottom: '16px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Store size={13} color="#10b981" />
+                  <span>Points de Vente ({pointsDeVente.length || 1})</span>
+                </span>
+                <span style={{ fontSize: '0.62rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <ShieldCheck size={11} />
+                  <span>Cloisonnement Garanti</span>
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
+                {pointsDeVente.map(pdv => (
+                  <div key={pdv.id} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    background: pdv.id === activePointDeVente?.id ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                    border: pdv.id === activePointDeVente?.id ? '1px solid #10b981' : '1px solid var(--border-glass)'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 800, color: pdv.id === activePointDeVente?.id ? '#10b981' : 'var(--text-main)' }}>
+                        {pdv.name}
+                      </div>
+                      <div style={{ fontSize: '0.6rem', color: 'var(--text-dim)' }}>
+                        📍 {pdv.address} • {pdv.code} ({pdv.caisseCount || 1} caisse)
+                      </div>
+                    </div>
+                    {pdv.id === activePointDeVente?.id ? (
+                      <span style={{ fontSize: '0.6rem', color: '#10b981', fontWeight: 800, background: 'rgba(16, 185, 129, 0.2)', padding: '2px 6px', borderRadius: '4px' }}>
+                        ● Actif
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          if (onSwitchPointDeVente) onSwitchPointDeVente(pdv.id);
+                          setIsAccountModalOpen(false);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: '1px solid var(--border-glass)',
+                          color: 'var(--text-main)',
+                          padding: '2px 7px',
+                          borderRadius: '4px',
+                          fontSize: '0.65rem',
+                          cursor: 'pointer',
+                          fontWeight: 700
+                        }}
+                      >
+                        Activer
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => {
+                  setIsAccountModalOpen(false);
+                  setIsAddPdvModalOpen(true);
+                }}
+                style={{
+                  width: '100%',
+                  marginTop: '8px',
+                  padding: '6px',
+                  borderRadius: '6px',
+                  background: 'none',
+                  border: '1px dashed #10b981',
+                  color: '#10b981',
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Plus size={12} />
+                <span>+ Nouvelle Succursale / Point de Vente</span>
+              </button>
+            </div>
+
             {/* Actions */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button
@@ -1122,6 +1411,183 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Se Déconnecter / Changer d'Établissement
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add New Point of Sale Modal */}
+      {isAddPdvModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          padding: '20px'
+        }}>
+          <div className="glass-panel" style={{
+            width: '100%',
+            maxWidth: '440px',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #006233, #16a34a)',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Store size={18} color="#fff" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
+                    Nouveau Point de Vente
+                  </h3>
+                  <span style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 700 }}>
+                    🔒 Caisse et stock totalement isolés
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddPdvModalOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (onAddPointDeVente && newPdvName.trim()) {
+                onAddPointDeVente({
+                  name: newPdvName.trim(),
+                  nameAr: newPdvName.trim(),
+                  sector: newPdvSector,
+                  code: `PDV-0${pointsDeVente.length + 1}`,
+                  address: newPdvAddress.trim() || 'Nouakchott',
+                  city: 'Nouakchott',
+                  caisseCount: Number(newPdvCaisses) || 1,
+                  isDefault: false
+                });
+                setIsAddPdvModalOpen(false);
+                setNewPdvName('');
+              }
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '5px' }}>
+                    Nom de la Succursale / Boutique *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Supérette Ksar N°2, Hannout Sebkha..."
+                    value={newPdvName}
+                    onChange={(e) => setNewPdvName(e.target.value)}
+                    className="input-field"
+                    style={{ width: '100%', padding: '9px 12px', fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '5px' }}>
+                    Secteur d'activité *
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {[
+                      { key: 'market', label: 'Boutique & Hannout', icon: ShoppingBag, color: '#059669' },
+                      { key: 'restaurant', label: 'Restaurant & Café', icon: UtensilsCrossed, color: '#ea580c' },
+                      { key: 'butcher', label: 'Boucherie / Poids', icon: Scale, color: '#d97706' },
+                      { key: 'cosmetics', label: 'Cosmétique & Beauté', icon: Sparkles, color: '#0284c7' }
+                    ].map(s => {
+                      const Icon = s.icon;
+                      const isSel = newPdvSector === s.key;
+                      return (
+                        <div
+                          key={s.key}
+                          onClick={() => setNewPdvSector(s.key as SectorType)}
+                          style={{
+                            padding: '8px 10px',
+                            borderRadius: '8px',
+                            background: isSel ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-tertiary)',
+                            border: isSel ? `1px solid ${s.color}` : '1px solid var(--border-glass)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <Icon size={14} color={s.color} />
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: isSel ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                            {s.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '5px' }}>
+                      Quartier / Adresse
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Marché Ksar, Tevragh-Zeina..."
+                      value={newPdvAddress}
+                      onChange={(e) => setNewPdvAddress(e.target.value)}
+                      className="input-field"
+                      style={{ width: '100%', padding: '9px 12px', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '5px' }}>
+                      Nbre Caisses
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={newPdvCaisses}
+                      onChange={(e) => setNewPdvCaisses(Number(e.target.value))}
+                      className="input-field"
+                      style={{ width: '100%', padding: '9px 12px', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsAddPdvModalOpen(false)}
+                  className="btn-secondary"
+                  style={{ flex: 1, padding: '10px', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ flex: 2, padding: '10px', fontSize: '0.82rem', fontWeight: 800 }}
+                >
+                  Créer et Activer la Caisse ➔
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

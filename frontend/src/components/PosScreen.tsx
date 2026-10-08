@@ -35,11 +35,13 @@ import {
   SlidersHorizontal,
   Package,
   Edit3,
-  Sparkles
+  Sparkles,
+  Store,
+  ShieldCheck
 } from 'lucide-react';
 import type { Product, KridiCustomer, Table, SectorType } from '../data/mockData';
 import { INITIAL_KRIDI_CUSTOMERS, INITIAL_TABLES } from '../data/mockData';
-import type { UserAccount } from './AuthModal';
+import type { UserAccount, PointDeVente } from './AuthModal';
 import { 
   getDailyZReportApi, 
   getKridiCustomersApi, 
@@ -74,6 +76,7 @@ interface PosScreenProps {
   onClearTable?: () => void;
   onSelectTable?: (table: Table) => void;
   account?: UserAccount | null;
+  activePointDeVente?: PointDeVente | null;
 }
 
 export const PosScreen: React.FC<PosScreenProps> = ({
@@ -84,7 +87,8 @@ export const PosScreen: React.FC<PosScreenProps> = ({
   onOrderSuccess,
   selectedTable,
   onClearTable,
-  account
+  account,
+  activePointDeVente
 }) => {
   const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -490,7 +494,11 @@ export const PosScreen: React.FC<PosScreenProps> = ({
       deliveryAddress: orderType === 'LIVRAISON' ? deliveryAddress : undefined,
       deliveryPhone: orderType === 'LIVRAISON' ? deliveryPhone : undefined,
       splitCount: isSplitModalOpen ? splitCount : 1,
-      date: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      date: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      pointDeVenteId: activePointDeVente?.id || 'pdv-1',
+      pointDeVenteName: activePointDeVente?.name || account?.businessName || 'Caisse Principale',
+      pointDeVenteCode: activePointDeVente?.code || 'PDV-01',
+      sector: sector
     };
 
     onOrderSuccess(orderData);
@@ -508,8 +516,8 @@ export const PosScreen: React.FC<PosScreenProps> = ({
     } catch {
       setZReportData({
         date: new Date().toLocaleDateString('fr-TN'),
-        tenantName: 'Caissa.mr Mauritanie - Station Centrale',
-        city: 'Tevragh-Zeina, Nouakchott',
+        tenantName: activePointDeVente ? `${account?.businessName || 'Caissa.mr'} - ${activePointDeVente.name}` : (account?.businessName || 'Caissa.mr Mauritanie - Station Centrale'),
+        city: activePointDeVente?.address || account?.city || 'Tevragh-Zeina, Nouakchott',
         nif: 'NIF 12048592/RIM',
         totalSales: 24850,
         ordersCount: 68,
@@ -886,6 +894,66 @@ export const PosScreen: React.FC<PosScreenProps> = ({
             </div>
           </div>
         )}
+
+        {/* Point de Vente Isolation & Status Banner */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'rgba(16, 185, 129, 0.08)',
+          border: '1px solid rgba(16, 185, 129, 0.25)',
+          borderRadius: '8px',
+          padding: '6px 12px',
+          marginBottom: '8px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '6px',
+              background: '#10b981',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Store size={14} color="#000" />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  {activePointDeVente ? activePointDeVente.name : (account?.businessName || 'Point de Vente 1')}
+                </span>
+                <span style={{
+                  fontSize: '0.6rem',
+                  background: '#10b981',
+                  color: '#000',
+                  fontWeight: 800,
+                  padding: '1px 5px',
+                  borderRadius: '3px'
+                }}>
+                  {activePointDeVente?.code || 'PDV-01'}
+                </span>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>
+                  • 📍 {activePointDeVente?.address || account?.city || 'Tevragh-Zeina, Nouakchott'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              fontSize: '0.65rem',
+              color: '#10b981',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <ShieldCheck size={12} />
+              <span>{i18n.language === 'ar' ? 'نقطة بيع معزولة بالكامل' : 'Caisse & Panier 100% Isolés'}</span>
+            </span>
+          </div>
+        </div>
 
         {/* Top Filter Bar: Search, Category Dropdown, Brand Dropdown & Utilities */}
         <div className="glass-panel" style={{

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import type { Product, SectorType } from '../data/mockData';
 import { INITIAL_PRODUCTS } from '../data/mockData';
+import type { PointDeVente, UserAccount } from './AuthModal';
 
 interface TableItem {
   id: number;
@@ -77,16 +78,53 @@ export interface GestionScreenProps {
   sector?: SectorType;
   onProductsUpdated?: (products: Product[]) => void;
   initialProducts?: Product[];
+  account?: UserAccount | null;
+  activePointDeVente?: PointDeVente | null;
+  pointsDeVente?: PointDeVente[];
+  onAddPointDeVente?: (newPdv: Omit<PointDeVente, 'id'>) => void;
 }
 
 export const GestionScreen: React.FC<GestionScreenProps> = ({
   sector = 'restaurant',
   onProductsUpdated,
-  initialProducts
+  initialProducts,
+  account: _account,
+  activePointDeVente,
+  pointsDeVente = [],
+  onAddPointDeVente
 }) => {
   // Mode de caisse actif dans le Back-Office (permet de gérer Restaurant, Boutique, Boucherie ou Cosmétiques)
   const [activeSector, setActiveSector] = useState<SectorType>(sector);
-  const [activeTab, setActiveTab] = useState<'infrastructure' | 'cashiers' | 'articles' | 'settings'>('infrastructure');
+  const [activeTab, setActiveTab] = useState<'infrastructure' | 'cashiers' | 'articles' | 'settings' | 'pdv'>('infrastructure');
+
+  // Multi-Points de Vente
+  const [showAddPdvModal, setShowAddPdvModal] = useState(false);
+  const [newPdvName, setNewPdvName] = useState('');
+  const [newPdvNameAr, setNewPdvNameAr] = useState('');
+  const [newPdvAddress, setNewPdvAddress] = useState('');
+  const [newPdvSector, setNewPdvSector] = useState<SectorType>('market');
+
+  const handleAddPdvSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPdvName.trim()) return;
+    if (onAddPointDeVente) {
+      onAddPointDeVente({
+        name: newPdvName.trim(),
+        nameAr: newPdvNameAr.trim() || newPdvName.trim(),
+        sector: newPdvSector,
+        code: `PDV-${String(pointsDeVente.length + 1).padStart(2, '0')}`,
+        address: newPdvAddress.trim() || 'Nouakchott, Mauritanie',
+        city: 'Nouakchott',
+        phone: '+222 22 14 55 88',
+        caisseCount: 1,
+        isDefault: false
+      });
+    }
+    setNewPdvName('');
+    setNewPdvNameAr('');
+    setNewPdvAddress('');
+    setShowAddPdvModal(false);
+  };
 
   // 1A. GESTION DES TABLES (Restaurant)
   const [tables, setTables] = useState<TableItem[]>(() => {
@@ -620,6 +658,37 @@ export const GestionScreen: React.FC<GestionScreenProps> = ({
         >
           <Settings size={16} />
           <span>Paramètres Établissement</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('pdv')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            borderRadius: '10px',
+            border: activeTab === 'pdv' ? '1px solid #10b981' : '1px solid transparent',
+            background: activeTab === 'pdv' ? '#10b981' : 'var(--bg-secondary)',
+            color: activeTab === 'pdv' ? '#ffffff' : 'var(--text-main)',
+            fontWeight: 800,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <Building2 size={16} />
+          <span>Points de Vente & Succursales</span>
+          <span style={{
+            background: activeTab === 'pdv' ? 'rgba(0, 0, 0, 0.25)' : 'var(--bg-tertiary)',
+            color: activeTab === 'pdv' ? '#ffffff' : 'var(--text-dim)',
+            padding: '1px 6px',
+            borderRadius: '999px',
+            fontSize: '0.7rem'
+          }}>
+            {pointsDeVente.length || 2}
+          </span>
         </button>
       </div>
 
@@ -1428,6 +1497,330 @@ export const GestionScreen: React.FC<GestionScreenProps> = ({
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* TAB 5: POINTS DE VENTE & SUCCURSALES (SÉPARATION ET CLOISONNEMENT) */}
+      {activeTab === 'pdv' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Header Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%)',
+            border: '1.5px solid rgba(16, 185, 129, 0.35)',
+            borderRadius: '16px',
+            padding: '20px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
+                background: '#059669',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)'
+              }}>
+                <Building2 size={24} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  Architecture Multi-Points de Vente & Cloisonnement Strict
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  Chaque succursale possède ses propres caisses, son panier actif indépendant, ses tickets numérotés et sa comptabilité hermétique.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAddPdvModal(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: '#059669',
+                color: '#ffffff',
+                border: 'none',
+                padding: '10px 18px',
+                borderRadius: '10px',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)'
+              }}
+            >
+              <Plus size={16} />
+              <span>Ajouter une Succursale</span>
+            </button>
+          </div>
+
+          {/* Active PDV Status Box */}
+          <div style={{
+            background: 'var(--bg-card)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: '12px',
+            padding: '14px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '1.1rem' }}>📍</span>
+              <div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  Point de Vente actuellement sélectionné sur ce terminal :
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 700 }}>
+                  [{activePointDeVente?.code || 'PDV-01'}] {activePointDeVente?.name || 'Siège Principal'} ({activePointDeVente?.address || 'Tevragh-Zeina'})
+                </div>
+              </div>
+            </div>
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              color: '#10b981',
+              padding: '4px 12px',
+              borderRadius: '999px',
+              fontSize: '0.76rem',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <ShieldCheck size={14} /> Données & Panier 100% Cloisonnés
+            </div>
+          </div>
+
+          {/* Points de Vente Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '16px'
+          }}>
+            {pointsDeVente.map(pdv => {
+              const isActive = activePointDeVente?.id === pdv.id;
+              return (
+                <div
+                  key={pdv.id}
+                  style={{
+                    background: 'var(--bg-card)',
+                    borderRadius: '14px',
+                    border: isActive ? '2px solid #059669' : '1px solid var(--border-glass)',
+                    padding: '18px 20px',
+                    boxShadow: isActive ? '0 4px 20px rgba(5, 150, 105, 0.15)' : '0 2px 8px rgba(0,0,0,0.04)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                    position: 'relative'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                          background: isActive ? '#059669' : 'var(--bg-tertiary)',
+                          color: isActive ? '#ffffff' : 'var(--text-dim)',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.72rem',
+                          fontWeight: 800
+                        }}>
+                          {pdv.code}
+                        </span>
+                        <span style={{
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          color: '#3b82f6',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700
+                        }}>
+                          {pdv.sector === 'restaurant' ? 'Restaurant' : pdv.sector === 'cosmetics' ? 'Cosmétique' : pdv.sector === 'butcher' ? 'Boucherie' : 'Boutique / Hannout'}
+                        </span>
+                      </div>
+                      <h4 style={{ margin: '8px 0 2px', fontSize: '1.02rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                        {pdv.name}
+                      </h4>
+                      {pdv.nameAr && (
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', direction: 'rtl' }}>
+                          {pdv.nameAr}
+                        </div>
+                      )}
+                    </div>
+
+                    {isActive && (
+                      <span style={{
+                        background: '#10b981',
+                        color: '#ffffff',
+                        fontSize: '0.68rem',
+                        fontWeight: 800,
+                        padding: '3px 8px',
+                        borderRadius: '999px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        En cours
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    <div>📍 {pdv.address || 'Nouakchott, Mauritanie'}</div>
+                    <div>📞 {pdv.phone || '+222 22 14 55 88'}</div>
+                    <div>🖥️ {pdv.caisseCount || 1} poste(s) de caisse configuré(s)</div>
+                  </div>
+
+                  <div style={{
+                    marginTop: 'auto',
+                    paddingTop: '12px',
+                    borderTop: '1px solid var(--border-glass)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <CheckCircle2 size={13} /> Panier & Ventes Isolés
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
+                      ID: {pdv.id}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Modal Ajout Succursale */}
+          {showAddPdvModal && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(5px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: '20px'
+            }}>
+              <div style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-glass)',
+                borderRadius: '16px',
+                width: '100%',
+                maxWidth: '480px',
+                padding: '24px',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ background: '#059669', color: '#fff', padding: '8px', borderRadius: '8px' }}>
+                      <Building2 size={20} />
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Nouvelle Succursale / Point de Vente</h3>
+                      <p style={{ margin: '2px 0 0', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+                        Créer un établissement indépendant avec caisse et panier isolés
+                      </p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowAddPdvModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}>
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleAddPdvSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                      Nom Commercial de la Succursale *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Supérette Al-Baraka (Succursale Arafat)"
+                      value={newPdvName}
+                      onChange={(e) => setNewPdvName(e.target.value)}
+                      required
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-main)', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                      Nom en Arabe (الاسم بالعربية)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="مثال: بقالة البركة (فرع عرفات)"
+                      value={newPdvNameAr}
+                      onChange={(e) => setNewPdvNameAr(e.target.value)}
+                      dir="rtl"
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-main)', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                        Activité / Secteur
+                      </label>
+                      <select
+                        value={newPdvSector}
+                        onChange={(e) => setNewPdvSector(e.target.value as SectorType)}
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-main)', fontSize: '0.85rem' }}
+                      >
+                        <option value="market">Boutique & Hannout</option>
+                        <option value="restaurant">Restaurant & Café</option>
+                        <option value="cosmetics">Parapharmacie & Cosmétique</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                        Quartier / Adresse
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ex: Arafat Carrefour Madrid"
+                        value={newPdvAddress}
+                        onChange={(e) => setNewPdvAddress(e.target.value)}
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-main)', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '10px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddPdvModal(false)}
+                      style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-secondary)', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }}
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', background: '#059669', color: '#ffffff', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 2px 8px rgba(5, 150, 105, 0.4)' }}
+                    >
+                      Créer la Succursale
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
