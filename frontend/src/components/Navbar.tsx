@@ -292,20 +292,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* Point of Sale Dropdown Menu */}
               {isPdvDropdownOpen && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  marginTop: '8px',
-                  width: '320px',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-glass)',
-                  borderRadius: '12px',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.45)',
-                  padding: '12px',
-                  zIndex: 100,
-                  backdropFilter: 'blur(16px)'
-                }}>
+                <>
+                  <div
+                    onClick={() => setIsPdvDropdownOpen(false)}
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '8px',
+                    width: '320px',
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border-glass)',
+                    borderRadius: '12px',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.45)',
+                    padding: '12px',
+                    zIndex: 100,
+                    backdropFilter: 'blur(16px)'
+                  }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid var(--border-glass)' }}>
                     <div>
                       <div style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-main)' }}>
@@ -415,6 +420,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span>+ Ajouter un Point de Vente / Succursale</span>
                   </button>
                 </div>
+                </>
               )}
             </div>
           </div>
