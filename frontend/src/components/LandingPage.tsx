@@ -218,19 +218,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {/* Navigation Links */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             <a href="#features" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-              Fonctionnalités
+              {i18n.language === 'ar' ? 'المميزات' : 'Fonctionnalités'}
             </a>
             <a href="#sectors" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-              Secteurs
+              {i18n.language === 'ar' ? 'القطاعات' : 'Secteurs'}
             </a>
             <a href="#kridi" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-              الكريدي (Crédits)
+              {i18n.language === 'ar' ? 'دفتر الكريدي' : 'الكريدي (Crédits)'}
             </a>
             <a href="#pricing" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-              Tarifs
+              {i18n.language === 'ar' ? 'الأسعار' : 'Tarifs'}
             </a>
             <a href="#contact" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-              Support & Contact
+              {i18n.language === 'ar' ? 'الدعم والتواصل' : 'Support & Contact'}
             </a>
           </nav>
 
@@ -272,7 +272,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <UtensilsCrossed size={13} color="#22c55e" />
                   <span>{account.businessName}</span>
                   <span style={{ fontSize: '0.62rem', background: '#22c55e', color: '#000', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
-                    Essai 14j
+                    {i18n.language === 'ar' ? 'تجربة 14 يوم' : 'Essai 14j'}
                   </span>
                 </div>
                 <button
@@ -288,7 +288,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   }}
                 >
                   <Store size={14} />
-                  <span>Ouvrir ma Caisse ➔</span>
+                  <span>{i18n.language === 'ar' ? 'فتح نقطة البيع ➔' : 'Ouvrir ma Caisse ➔'}</span>
                 </button>
                 <button
                   onClick={onLogout}
@@ -296,7 +296,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   style={{ padding: '8px 12px', fontSize: '0.76rem' }}
                   title="Se déconnecter"
                 >
-                  Déconnexion
+                  {i18n.language === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}
                 </button>
               </div>
             ) : (
@@ -317,7 +317,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   }}
                 >
                   <Store size={14} />
-                  <span>Se Connecter</span>
+                  <span>{i18n.language === 'ar' ? 'تسجيل الدخول' : 'Se Connecter'}</span>
                 </button>
 
                 <button
@@ -337,7 +337,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   }}
                 >
                   <Sparkles size={14} />
-                  <span>Créer un Compte Restaurant (14j Gratuits)</span>
+                  <span>{i18n.language === 'ar' ? 'إنشاء حساب مطعم (14 يوم مجاناً)' : 'Créer un Compte Restaurant (14j Gratuits)'}</span>
                   <ArrowRight size={14} />
                 </button>
               </>

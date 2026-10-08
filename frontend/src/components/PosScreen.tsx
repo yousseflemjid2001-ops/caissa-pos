@@ -46,6 +46,7 @@ import {
   createCashMovementApi, 
   getCashMovementsApi 
 } from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 export interface CartItem {
   product: Product;
@@ -85,6 +86,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
   onClearTable,
   account
 }) => {
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
@@ -899,7 +901,9 @@ export const PosScreen: React.FC<PosScreenProps> = ({
             <input
               type="text"
               placeholder={
-                sector === 'restaurant'
+                i18n.language === 'ar'
+                  ? "بحث عن منتج، مسح الباركود..."
+                  : sector === 'restaurant'
                   ? "Rechercher un plat (Thieb, Chwaya, Café...)"
                   : sector === 'butcher'
                   ? "Rechercher une viande, poisson ou vrac (Chameau, Agneau, Thiof)..."
@@ -1397,7 +1401,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Ticket en cours</h3>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>{t('pos.ticket_current')}</h3>
               {cart.length > 0 && (
                 <span style={{
                   background: 'var(--accent-primary)',
@@ -1469,7 +1473,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                   style={{ padding: '4px 8px', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '4px' }}
                   title="Suspendre le ticket"
                 >
-                  <PauseCircle size={13} color="var(--accent-amber)" /> Attente
+                  <PauseCircle size={13} color="var(--accent-amber)" /> {t('pos.hold')}
                 </button>
                 <button
                   onClick={clearCart}
@@ -1521,7 +1525,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 }}
               >
                 <Utensils size={13} />
-                <span>Sur Place</span>
+                <span>{t('pos.dine_in')}</span>
               </button>
 
               <button
@@ -1544,7 +1548,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 }}
               >
                 <ShoppingBag size={13} />
-                <span>À Emporter</span>
+                <span>{t('pos.takeaway')}</span>
               </button>
 
               <button
@@ -1567,7 +1571,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 }}
               >
                 <Bike size={13} />
-                <span>Livraison</span>
+                <span>{t('pos.delivery')}</span>
               </button>
             </div>
 
@@ -2415,10 +2419,10 @@ export const PosScreen: React.FC<PosScreenProps> = ({
             }}>
               <div>
                 <div style={{ fontSize: '0.66rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.04em' }}>
-                  Net à Payer
+                  {t('pos.total')}
                 </div>
                 <div style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)' }}>
-                  TOTAL COMMANDE
+                  {t('pos.order_total')}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -2430,7 +2434,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
 
             {/* Fast Cash Buttons (Mauritanian Banknotes: 50, 100, 200, 500, 1000 MRU) */}
             <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>Billets :</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>{t('pos.banknotes')} :</span>
               {[50, 100, 200, 500, 1000].map(cash => (
                 <button
                   key={cash}
@@ -2467,7 +2471,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                   cursor: 'pointer'
                 }}
               >
-                Exact
+                {t('pos.exact')}
               </button>
             </div>
 
@@ -2483,9 +2487,9 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 alignItems: 'center',
                 fontSize: '0.85rem'
               }}>
-                <span>Reçu en caisse : <strong>{cashGiven} MRU</strong></span>
+                <span>{t('pos.received')} : <strong>{cashGiven} MRU</strong></span>
                 <span style={{ color: changeDue >= 0 ? '#10b981' : '#ef4444', fontWeight: 900, fontSize: '0.95rem' }}>
-                  Rendu : {changeDue.toFixed(0)} MRU
+                  {t('pos.change')} : {changeDue.toFixed(0)} MRU
                 </span>
               </div>
             )}
@@ -2512,7 +2516,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 }}
                 title="Paiement Espèces (Ouguiya)"
               >
-                <Banknote size={15} /> Espèces
+                <Banknote size={15} /> {t('pos.cash')}
               </button>
 
               <button

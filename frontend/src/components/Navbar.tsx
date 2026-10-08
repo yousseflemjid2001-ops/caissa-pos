@@ -268,7 +268,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Mode Restauration & Chwaya"
           >
             <UtensilsCrossed size={11} />
-            <span>{t('common.restaurant').split(' ')[0] || 'Resto'}</span>
+            <span>{i18n.language === 'ar' ? 'مطاعم' : 'Resto'}</span>
           </button>
           <button
             onClick={() => setSector('market')}
@@ -289,7 +289,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Mode Boutique, Épicerie & Hanout"
           >
             <ShoppingBag size={11} />
-            <span>Boutique</span>
+            <span>{i18n.language === 'ar' ? 'بقالة' : 'Boutique'}</span>
           </button>
           <button
             onClick={() => setSector('butcher')}
@@ -310,7 +310,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Mode Boucherie, Poisson & Pesée au Kg"
           >
             <Scale size={11} />
-            <span>Pesée</span>
+            <span>{i18n.language === 'ar' ? 'ميزان' : 'Pesée'}</span>
           </button>
           <button
             onClick={() => setSector('cosmetics')}
@@ -331,7 +331,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Mode Cosmétiques & Parapharmacie"
           >
             <Sparkles size={11} />
-            <span>Beauté</span>
+            <span>{i18n.language === 'ar' ? 'تجميل' : 'Beauté'}</span>
           </button>
         </div>
       </div>
@@ -398,7 +398,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
             >
               <LayoutGrid size={14} />
-              <span>Tables</span>
+              <span>{t('nav.tables')}</span>
             </button>
 
             <button
@@ -419,7 +419,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
             >
               <ChefHat size={14} />
-              <span>Cuisine</span>
+              <span>{t('nav.kds')}</span>
             </button>
           </>
         )}
@@ -443,7 +443,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           }}
         >
           <Receipt size={14} />
-          <span>Ventes</span>
+          <span>{t('nav.ventes')}</span>
         </button>
 
         {/* Market Mode: Stocks & Kridi */}
@@ -512,7 +512,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           }}
         >
           <SlidersHorizontal size={14} />
-          <span>Gestion Admin</span>
+          <span>{t('nav.gestion')}</span>
         </button>
 
         {/* Executive Dropdown: Back-Office & Gestion */}
@@ -535,7 +535,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <SlidersHorizontal size={13} />
-            <span>Modules</span>
+            <span>{t('nav.modules')}</span>
             <ChevronDown size={11} style={{ transform: isGestionMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
           </button>
 
@@ -767,7 +767,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           title="Voir la page d'accueil vitrine"
         >
           <Home size={12} />
-          <span>Vitrine</span>
+          <span>{t('nav.home')}</span>
         </button>
 
         <button
