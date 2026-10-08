@@ -227,141 +227,178 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
-      {/* 1. TOP ANNOUNCEMENT BANNER */}
+      {/* 1. TOP ANNOUNCEMENT BANNER (PREMIUM SLEEK DESIGN) */}
       <div style={{
-        background: 'linear-gradient(90deg, #006233 0%, #16a34a 50%, #d97706 100%)',
+        background: 'linear-gradient(90deg, #022c22 0%, #065f46 50%, #047857 100%)',
         color: '#ffffff',
-        padding: '8px 16px',
+        padding: '7px 20px',
         textAlign: 'center',
-        fontSize: '0.8rem',
-        fontWeight: 700,
-        letterSpacing: '0.02em',
+        fontSize: '0.78rem',
+        fontWeight: 600,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px'
+        flexWrap: 'wrap',
+        gap: '10px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
       }}>
-        <span>🎉 Offre Lancement Mauritanie : Jusqu'à -50% sur l'abonnement annuel & 15 jours d'essai 100% gratuit !</span>
+        <span style={{
+          background: 'rgba(255, 255, 255, 0.16)',
+          color: '#a7f3d0',
+          padding: '2px 8px',
+          borderRadius: '999px',
+          fontSize: '0.66rem',
+          fontWeight: 800,
+          letterSpacing: '0.03em',
+          textTransform: 'uppercase'
+        }}>
+          🇲🇷 Mauritanie
+        </span>
+        <span style={{ color: '#ecfdf5' }}>
+          {i18n.language === 'ar'
+            ? 'عرض إطلاق حصري: خصم يصل إلى 50% مع 14 يوماً تجربة مجانية كاملة بدون التزام!'
+            : "Offre Spéciale Lancement : Jusqu'à -50% sur l'abonnement annuel & 14 jours d'essai offerts !"}
+        </span>
         <button 
           onClick={() => {
             const pricingEl = document.getElementById('pricing');
-            if (pricingEl) {
-              pricingEl.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (pricingEl) pricingEl.scrollIntoView({ behavior: 'smooth' });
           }}
           style={{
-            background: 'rgba(255, 255, 255, 0.25)',
-            border: 'none',
-            color: '#fff',
-            padding: '2px 8px',
-            borderRadius: '4px',
-            fontSize: '0.75rem',
+            background: 'rgba(255, 255, 255, 0.2)',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
+            color: '#ffffff',
+            padding: '2px 10px',
+            borderRadius: '999px',
+            fontSize: '0.72rem',
             cursor: 'pointer',
-            fontWeight: 800
+            fontWeight: 800,
+            whiteSpace: 'nowrap',
+            transition: 'all 0.15s ease'
           }}
         >
-          Voir les Tarifs ➔
+          {i18n.language === 'ar' ? 'عرض الأسعار ➔' : 'Voir les Tarifs ➔'}
         </button>
       </div>
 
-      {/* 2. LANDING NAVBAR */}
+      {/* 2. LANDING NAVBAR (PROFESSIONAL SAAS AESTHETIC) */}
       <header style={{
         borderBottom: '1px solid var(--border-glass)',
-        background: 'var(--bg-secondary)',
+        background: 'rgba(255, 255, 255, 0.94)',
         position: 'sticky',
         top: 0,
-        zIndex: 50,
-        backdropFilter: 'blur(12px)'
+        zIndex: 100,
+        backdropFilter: 'blur(16px)',
+        boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.04)'
       }}>
         <div style={{
-          maxWidth: '1240px',
+          maxWidth: '1380px',
           margin: '0 auto',
-          padding: '14px 24px',
+          padding: '11px 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '20px'
+          gap: '16px'
         }}>
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          {/* Logo & Brand */}
+          <div 
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0 }} 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
             <div style={{
-              background: 'linear-gradient(135deg, #006233, #16a34a)',
+              background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
               width: '38px',
               height: '38px',
               borderRadius: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(22, 163, 74, 0.35)'
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)',
+              color: '#ffffff'
             }}>
-              <Store size={20} color="#fff" />
+              <Store size={20} />
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ fontWeight: 900, fontSize: '1.25rem', letterSpacing: '-0.03em', color: 'var(--text-main)' }}>
-                  Caissa<span style={{ color: '#22c55e' }}>.mr</span>
+                  Caissa<span style={{ color: '#10b981' }}>.mr</span>
                 </span>
                 <span style={{
-                  background: 'rgba(22, 163, 74, 0.15)',
-                  color: '#22c55e',
-                  border: '1px solid rgba(22, 163, 74, 0.3)',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  color: '#059669',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
                   padding: '1px 6px',
-                  borderRadius: '4px',
-                  fontSize: '0.65rem',
-                  fontWeight: 800
+                  borderRadius: '5px',
+                  fontSize: '0.64rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.02em'
                 }}>
-                  🇲🇷 RIM
+                  MRU 🇲🇷
                 </span>
               </div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>
+              <div style={{ fontSize: '0.67rem', color: 'var(--text-dim)', fontWeight: 500, letterSpacing: '-0.01em' }}>
                 Point de Vente & Gestion Commerciale
               </div>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <a href="#features" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap' }}>
+            <a href="#features" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.84rem', fontWeight: 600, whiteSpace: 'nowrap', transition: 'color 0.15s ease' }}>
               {i18n.language === 'ar' ? 'المميزات' : 'Fonctionnalités'}
             </a>
-            <a href="#sectors" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
+            <a href="#sectors" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.84rem', fontWeight: 600, whiteSpace: 'nowrap', transition: 'color 0.15s ease' }}>
               {i18n.language === 'ar' ? 'القطاعات' : 'Secteurs'}
             </a>
-            <a href="#kridi" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-              {i18n.language === 'ar' ? 'دفتر الكريدي' : 'الكريدي (Crédits)'}
+            <a href="#kridi" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.84rem', fontWeight: 600, whiteSpace: 'nowrap', transition: 'color 0.15s ease' }}>
+              {i18n.language === 'ar' ? 'دفتر الكريدي' : 'Carnet Kridi'}
             </a>
-            <a href="#fidelite" style={{ textDecoration: 'none', color: '#10b981', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Sparkles size={14} color="#10b981" />
-              {i18n.language === 'ar' ? 'بطاقات الولاء (جديد)' : 'Fidélité & Cartes (Nouveau)'}
+            <a href="#fidelite" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.84rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap', transition: 'color 0.15s ease' }}>
+              <span>{i18n.language === 'ar' ? 'بطاقات الولاء' : 'Fidélité'}</span>
+              <span style={{
+                background: 'rgba(16, 185, 129, 0.12)',
+                color: '#10b981',
+                fontSize: '0.62rem',
+                fontWeight: 800,
+                padding: '1px 5px',
+                borderRadius: '999px',
+                border: '1px solid rgba(16, 185, 129, 0.25)'
+              }}>
+                {i18n.language === 'ar' ? 'جديد' : 'Nouveau'}
+              </span>
             </a>
-            <a href="#pricing" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
+            <a href="#pricing" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.84rem', fontWeight: 600, whiteSpace: 'nowrap', transition: 'color 0.15s ease' }}>
               {i18n.language === 'ar' ? 'الأسعار' : 'Tarifs'}
             </a>
-            <a href="#contact" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-              {i18n.language === 'ar' ? 'الدعم والتواصل' : 'Support & Contact'}
+            <a href="#contact" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.84rem', fontWeight: 600, whiteSpace: 'nowrap', transition: 'color 0.15s ease' }}>
+              {i18n.language === 'ar' ? 'التواصل' : 'Contact'}
             </a>
           </nav>
 
           {/* CTA Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            {/* Language Switcher */}
             <button
               onClick={() => i18n.changeLanguage(i18n.language === 'fr' ? 'ar' : 'fr')}
               style={{
-                background: 'none',
+                background: 'var(--bg-tertiary)',
                 border: '1px solid var(--border-glass)',
-                padding: '8px 12px',
-                borderRadius: '999px',
+                padding: '6px 11px',
+                borderRadius: '8px',
                 color: 'var(--text-main)',
                 cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.8rem',
+                fontWeight: 700,
+                fontSize: '0.78rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '5px',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease'
               }}
+              title="Changer de langue / تغيير اللغة"
             >
-              <Globe size={14} />
-              {i18n.language === 'fr' ? 'العربية' : 'Français'}
+              <Globe size={13} />
+              <span>{i18n.language === 'fr' ? 'العربية' : 'Français'}</span>
             </button>
 
             {account ? (
@@ -371,28 +408,35 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   alignItems: 'center',
                   gap: '6px',
                   padding: '5px 12px',
-                  background: 'rgba(34, 197, 94, 0.12)',
-                  border: '1px solid rgba(34, 197, 94, 0.35)',
-                  borderRadius: '999px',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
                   fontSize: '0.78rem',
-                  fontWeight: 800
+                  fontWeight: 800,
+                  whiteSpace: 'nowrap'
                 }}>
-                  <UtensilsCrossed size={13} color="#22c55e" />
-                  <span>{account.businessName}</span>
-                  <span style={{ fontSize: '0.62rem', background: '#22c55e', color: '#000', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
-                    {i18n.language === 'ar' ? 'تجربة 14 يوم' : 'Essai 14j'}
+                  <UtensilsCrossed size={13} color="#10b981" />
+                  <span style={{ color: 'var(--text-main)' }}>{account.businessName}</span>
+                  <span style={{ fontSize: '0.62rem', background: '#10b981', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontWeight: 800 }}>
+                    {i18n.language === 'ar' ? '14 يوم' : 'Essai 14j'}
                   </span>
                 </div>
                 <button
                   onClick={() => onEnterApp('pos')}
-                  className="btn-primary"
                   style={{
-                    padding: '8px 16px',
+                    padding: '7px 16px',
+                    borderRadius: '8px',
                     fontSize: '0.82rem',
                     fontWeight: 800,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px'
+                    gap: '6px',
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   <Store size={14} />
@@ -400,53 +444,68 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </button>
                 <button
                   onClick={onLogout}
-                  className="btn-secondary"
-                  style={{ padding: '8px 12px', fontSize: '0.76rem' }}
+                  style={{
+                    padding: '7px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.76rem',
+                    fontWeight: 600,
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border-glass)',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
                   title="Se déconnecter"
                 >
-                  {i18n.language === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}
+                  {i18n.language === 'ar' ? 'خروج' : 'Déconnexion'}
                 </button>
               </div>
             ) : (
               <>
                 <button
                   onClick={() => onOpenAuthModal ? onOpenAuthModal('login') : onEnterApp('pos')}
-                  className="btn-secondary"
                   style={{
-                    padding: '8px 16px',
-                    borderRadius: '999px',
+                    padding: '7px 14px',
+                    borderRadius: '8px',
                     fontSize: '0.82rem',
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: '5px',
                     border: '1px solid var(--border-glass)',
-                    background: 'var(--bg-card)'
+                    background: 'var(--bg-card)',
+                    color: 'var(--text-main)',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <Store size={14} />
+                  <Store size={13} color="var(--text-muted)" />
                   <span>{i18n.language === 'ar' ? 'تسجيل الدخول' : 'Se Connecter'}</span>
                 </button>
 
                 <button
                   onClick={() => onOpenAuthModal ? onOpenAuthModal('register', 'restaurant') : onEnterApp('pos')}
-                  className="btn-primary"
                   style={{
-                    padding: '9px 20px',
-                    borderRadius: '999px',
+                    padding: '8px 18px',
+                    borderRadius: '8px',
                     fontSize: '0.82rem',
                     fontWeight: 800,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '7px',
-                    background: 'linear-gradient(135deg, #006233, #16a34a)',
-                    boxShadow: '0 4px 16px rgba(22, 163, 74, 0.4)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                    gap: '6px',
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <Sparkles size={14} />
-                  <span>{i18n.language === 'ar' ? 'إنشاء حساب مطعم (14 يوم مجاناً)' : 'Créer un Compte Restaurant (14j Gratuits)'}</span>
-                  <ArrowRight size={14} />
+                  <Sparkles size={13} />
+                  <span>{i18n.language === 'ar' ? 'تجربة مجانية (14 يوم)' : 'Essai Gratuit 14 Jours'}</span>
+                  <ArrowRight size={13} />
                 </button>
               </>
             )}
