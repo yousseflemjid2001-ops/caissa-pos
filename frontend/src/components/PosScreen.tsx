@@ -37,7 +37,11 @@ import {
   Edit3,
   Sparkles,
   Store,
-  ShieldCheck
+  ShieldCheck,
+  Tablet,
+  Maximize2,
+  Minimize2,
+  Hash
 } from 'lucide-react';
 import type { Product, KridiCustomer, Table, SectorType } from '../data/mockData';
 import { INITIAL_KRIDI_CUSTOMERS, INITIAL_TABLES } from '../data/mockData';
@@ -182,6 +186,47 @@ export const PosScreen: React.FC<PosScreenProps> = ({
 
   // Message d'envoi KDS
   const [kdsToast, setKdsToast] = useState<string | null>(null);
+
+  // Mode Tablette Tactile, Plein Écran & Clavier Numpad Caissier
+  const [isTabletMode, setIsTabletMode] = useState<boolean>(() => {
+    return typeof window !== 'undefined' ? window.innerWidth <= 1280 : false;
+  });
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isTactileNumpadOpen, setIsTactileNumpadOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
+
+  const handleTactileNumpadInput = (val: string) => {
+    if (val === 'C') {
+      setCashGiven(0);
+    } else if (val === 'EXACT') {
+      setCashGiven(total);
+    } else if (val.startsWith('+')) {
+      const add = parseInt(val.replace('+', ''), 10);
+      setCashGiven(prev => (prev || 0) + add);
+    } else {
+      const currentStr = cashGiven > 0 ? String(cashGiven) : '';
+      const nextStr = currentStr + val;
+      const num = parseInt(nextStr, 10);
+      if (!isNaN(num) && num <= 1000000) {
+        setCashGiven(num);
+      }
+    }
+  };
 
   useEffect(() => {
     if (selectedTable) {
@@ -738,11 +783,14 @@ export const PosScreen: React.FC<PosScreenProps> = ({
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: '1fr 440px',
-      gap: '14px',
-      padding: '0 16px 16px 16px',
-      height: 'calc(100vh - 84px)',
-      boxSizing: 'border-box'
+      gridTemplateColumns: isTabletMode 
+        ? 'minmax(0, 1.45fr) minmax(360px, 1fr)' 
+        : 'minmax(0, 1fr) clamp(360px, 32vw, 440px)',
+      gap: isTabletMode ? '10px' : '14px',
+      padding: isTabletMode ? '0 10px 10px 10px' : '0 16px 16px 16px',
+      height: 'calc(100vh - 72px)',
+      boxSizing: 'border-box',
+      overflow: 'hidden'
     }}>
       {/* Toast Notification KDS */}
       {kdsToast && (
@@ -771,6 +819,95 @@ export const PosScreen: React.FC<PosScreenProps> = ({
       {/* LEFT: Product Catalog & Fast Grid (Like Caissa.tn POS) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflow: 'hidden' }}>
         {/* BANDEAU MÉTIER PERSONNALISÉ SELON LE SECTEUR ACTIF */}
+        {sector === 'restaurant' && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.14), rgba(180, 83, 9, 0.05))',
+            border: '1px solid rgba(234, 88, 12, 0.35)',
+            borderRadius: '10px',
+            padding: '8px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(234, 88, 12, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ea580c' }}>
+                <ChefHat size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#ea580c', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>Restauration, Grillades, Café & Fast-Food</span>
+                  <span style={{ fontSize: '0.62rem', background: '#ea580c', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontWeight: 900 }}>🔥 KDS CUISINE ACTIF</span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                  Plan de salle en direct • Toast POS Modificateurs • Gestion des couverts et pré-addition
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setIsTableModalOpen(true)}
+                className="btn-secondary"
+                style={{ padding: '3px 10px', fontSize: '0.72rem', fontWeight: 700, color: '#ea580c', borderColor: 'rgba(234, 88, 12, 0.4)', display: 'flex', alignItems: 'center', gap: '5px' }}
+                title="Choisir ou changer de table"
+              >
+                <Utensils size={12} />
+                <span>{activeTable || 'Table 1'} ({coversCount}p)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSendToKds}
+                disabled={cart.length === 0}
+                style={{
+                  padding: '3px 10px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  background: cart.length > 0 ? '#ea580c' : 'var(--bg-tertiary)',
+                  color: cart.length > 0 ? '#fff' : 'var(--text-dim)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: cart.length > 0 ? 'pointer' : 'not-allowed',
+                  opacity: cart.length > 0 ? 1 : 0.6
+                }}
+                title="Envoyer les plats commandés en cuisine (KDS)"
+              >
+                <Flame size={12} />
+                <span>Envoyer Cuisine ({cart.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsProformaModalOpen(true)}
+                disabled={cart.length === 0}
+                className="btn-secondary"
+                style={{ padding: '3px 8px', fontSize: '0.7rem' }}
+                title="Imprimer l'addition provisoire de table"
+              >
+                <FileText size={11} />
+                <span>Proforma</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsSplitModalOpen(true)}
+                disabled={cart.length === 0}
+                className="btn-secondary"
+                style={{ padding: '3px 8px', fontSize: '0.7rem' }}
+                title="Diviser l'addition entre convives"
+              >
+                <Split size={11} />
+                <span>Split</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {sector === 'butcher' && (
           <div style={{
             background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(180, 83, 9, 0.05))',
@@ -1118,6 +1255,44 @@ export const PosScreen: React.FC<PosScreenProps> = ({
             title="Calculatrice tactile"
           >
             <Calculator size={13} />
+          </button>
+
+          {/* Mode Tablette Tactile Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsTabletMode(!isTabletMode)}
+            className="btn-secondary"
+            style={{
+              padding: '6px 10px',
+              fontSize: '0.75rem',
+              borderColor: isTabletMode ? '#10b981' : 'var(--border-glass)',
+              background: isTabletMode ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+              color: isTabletMode ? '#10b981' : 'var(--text-main)',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            title="Activer/Désactiver l'ergonomie tactile optimisée pour tablettes (iPad, Android POS, Sunmi, Elo Touch)"
+          >
+            <Tablet size={13} />
+            <span>{isTabletMode ? 'Tablette Tactile ●' : 'Tablette'}</span>
+          </button>
+
+          {/* Plein Écran POS Toggle */}
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            className="btn-secondary"
+            style={{
+              padding: '6px 10px',
+              fontSize: '0.75rem',
+              borderColor: isFullscreen ? '#10b981' : 'var(--border-glass)',
+              color: isFullscreen ? '#10b981' : 'var(--text-main)'
+            }}
+            title={isFullscreen ? "Quitter le mode plein écran" : "Plein écran Caisse Dédiée (Terminal POS)"}
+          >
+            {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
           </button>
 
           {/* Clôture & Rapports Dropdown */}
@@ -1483,11 +1658,23 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 </span>
               )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
-                Caisse N°1 • Tevragh-Zeina •
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 700 }}>
+                {activePointDeVente ? `${activePointDeVente.code} • ${activePointDeVente.name}` : 'PDV-01 • Caisse N°1'} •
+              </span>
+              <span style={{
+                fontSize: '0.62rem',
+                padding: '1px 6px',
+                borderRadius: '4px',
+                fontWeight: 800,
+                background: sector === 'market' ? 'rgba(16, 185, 129, 0.15)' : sector === 'restaurant' ? 'rgba(234, 88, 12, 0.15)' : sector === 'butcher' ? 'rgba(217, 119, 6, 0.15)' : 'rgba(2, 132, 199, 0.15)',
+                color: sector === 'market' ? '#10b981' : sector === 'restaurant' ? '#ea580c' : sector === 'butcher' ? '#d97706' : '#0284c7',
+                border: `1px solid ${sector === 'market' ? 'rgba(16, 185, 129, 0.3)' : sector === 'restaurant' ? 'rgba(234, 88, 12, 0.3)' : sector === 'butcher' ? 'rgba(217, 119, 6, 0.3)' : 'rgba(2, 132, 199, 0.3)'}`
+              }}>
+                {sector === 'market' ? '🛒 Épicerie & Hanout' : sector === 'restaurant' ? '🍽️ Restauration & KDS' : sector === 'butcher' ? '🥩 Boucherie & Pesée' : '✨ Cosmétique & DLUO'}
               </span>
               <button
+                type="button"
                 onClick={() => setIsCustomerPickerModalOpen(true)}
                 style={{
                   background: 'transparent',
@@ -2026,11 +2213,313 @@ export const PosScreen: React.FC<PosScreenProps> = ({
           </div>
         )}
 
+        {/* BUTCHER & POISSONNERIE MODE: Service & Balance Header */}
+        {sector === 'butcher' && (
+          <div style={{
+            padding: '8px 12px',
+            background: 'var(--bg-tertiary)',
+            borderBottom: '1px solid var(--border-glass)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            {/* 3 Service Types: Vente Comptoir, Commande Découpe, Livraison Frais */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px' }}>
+              <button
+                type="button"
+                onClick={() => setOrderType('SUR_PLACE')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 4px',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  borderColor: orderType === 'SUR_PLACE' ? '#d97706' : 'var(--border-glass)',
+                  background: orderType === 'SUR_PLACE' ? '#d97706' : 'var(--bg-card)',
+                  color: orderType === 'SUR_PLACE' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Scale size={13} />
+                <span>Comptoir Pesée</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOrderType('A_EMPORTER')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 4px',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  borderColor: orderType === 'A_EMPORTER' ? '#d97706' : 'var(--border-glass)',
+                  background: orderType === 'A_EMPORTER' ? '#d97706' : 'var(--bg-card)',
+                  color: orderType === 'A_EMPORTER' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Package size={13} />
+                <span>Gros / Événement</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOrderType('LIVRAISON')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 4px',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  borderColor: orderType === 'LIVRAISON' ? '#d97706' : 'var(--border-glass)',
+                  background: orderType === 'LIVRAISON' ? '#d97706' : 'var(--bg-card)',
+                  color: orderType === 'LIVRAISON' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Bike size={13} />
+                <span>Livraison Frais</span>
+              </button>
+            </div>
+
+            {/* Quick Actions Bar: Balance Directe / Découpe Spéciale / Carnet Kridi */}
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (sectorProducts.length > 0) {
+                    setWeighingProduct(sectorProducts[0]);
+                    setScaleWeight(1.25);
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  background: 'rgba(217, 119, 6, 0.12)',
+                  border: '1px solid rgba(217, 119, 6, 0.35)',
+                  color: '#d97706',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+                title="Ouvrir la pesée balance connectée"
+              >
+                <Scale size={13} />
+                <span>Balance Pesée</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsCustomItemModalOpen(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-glass)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+                title="Découpe spéciale ou article sur-mesure"
+              >
+                <Plus size={12} color="#d97706" />
+                <span>Découpe Libre</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsKridiModalOpen(true)}
+                style={{
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  background: selectedKridiCustomer ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-card)',
+                  border: `1px solid ${selectedKridiCustomer ? '#10b981' : 'var(--border-glass)'}`,
+                  color: selectedKridiCustomer ? '#10b981' : 'var(--text-main)',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+                title="Crédit client de quartier (الكريدي)"
+              >
+                <BookOpen size={12} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* COSMETICS & PARAPHARMACIE MODE: Service & Lots Header */}
+        {sector === 'cosmetics' && (
+          <div style={{
+            padding: '8px 12px',
+            background: 'var(--bg-tertiary)',
+            borderBottom: '1px solid var(--border-glass)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            {/* 3 Service Types: Conseil Boutique, Parapharmacie, Commande Web */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px' }}>
+              <button
+                type="button"
+                onClick={() => setOrderType('SUR_PLACE')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 4px',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  borderColor: orderType === 'SUR_PLACE' ? '#0284c7' : 'var(--border-glass)',
+                  background: orderType === 'SUR_PLACE' ? '#0284c7' : 'var(--bg-card)',
+                  color: orderType === 'SUR_PLACE' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Sparkles size={13} />
+                <span>Conseil Beauté</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOrderType('A_EMPORTER')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 4px',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  borderColor: orderType === 'A_EMPORTER' ? '#0284c7' : 'var(--border-glass)',
+                  background: orderType === 'A_EMPORTER' ? '#0284c7' : 'var(--bg-card)',
+                  color: orderType === 'A_EMPORTER' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Package size={13} />
+                <span>Parapharmacie</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOrderType('LIVRAISON')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 4px',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  borderColor: orderType === 'LIVRAISON' ? '#0284c7' : 'var(--border-glass)',
+                  background: orderType === 'LIVRAISON' ? '#0284c7' : 'var(--bg-card)',
+                  color: orderType === 'LIVRAISON' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Bike size={13} />
+                <span>Livraison Web</span>
+              </button>
+            </div>
+
+            {/* Quick Actions Bar: Nuancier / Article Conseil / TVA Conforme */}
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const shadeProduct = sectorProducts.find(p => p.shades && p.shades.length > 0);
+                  if (shadeProduct) {
+                    setShadeModalProduct(shadeProduct);
+                    setSelectedShade(shadeProduct.shades![0]);
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  background: 'rgba(2, 132, 199, 0.12)',
+                  border: '1px solid rgba(2, 132, 199, 0.35)',
+                  color: '#0284c7',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+                title="Nuancier teintes & palettes maquillage"
+              >
+                <Sparkles size={13} />
+                <span>🎨 Nuancier Teintes</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsCustomItemModalOpen(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-glass)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+                title="Soin ou article non répertorié"
+              >
+                <Plus size={12} color="#0284c7" />
+                <span>Soin Libre</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Cart Items List */}
         <div style={{
-          flex: 1,
+          flex: '1 1 0px',
+          minHeight: 0,
           overflowY: 'auto',
-          padding: '10px 12px',
+          padding: '8px 12px',
           display: 'flex',
           flexDirection: 'column',
           gap: '6px'
@@ -2424,12 +2913,13 @@ export const PosScreen: React.FC<PosScreenProps> = ({
         {/* Cart Totals & Payment Section (Exact Caissa.tn Flow) */}
         {cart.length > 0 && (
           <div style={{
-            padding: '12px 14px',
+            padding: isTabletMode ? '8px 12px' : '12px 14px',
             borderTop: '1px solid var(--border-glass)',
             background: 'var(--bg-secondary)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px'
+            gap: isTabletMode ? '6px' : '8px',
+            flexShrink: 0
           }}>
             {/* Discount selector */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2515,8 +3005,8 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                     color: cashGiven === cash ? '#ffffff' : 'var(--text-main)',
                     border: '1px solid',
                     borderRadius: '5px',
-                    padding: '5px 0',
-                    fontSize: '0.75rem',
+                    padding: isTabletMode ? '8px 0' : '5px 0',
+                    fontSize: isTabletMode ? '0.8rem' : '0.75rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
@@ -2533,7 +3023,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                   border: '1px solid var(--border-glass)',
                   color: 'var(--text-muted)',
                   borderRadius: '5px',
-                  padding: '5px 8px',
+                  padding: isTabletMode ? '8px 8px' : '5px 8px',
                   fontSize: '0.72rem',
                   fontWeight: 700,
                   cursor: 'pointer'
@@ -2541,24 +3031,163 @@ export const PosScreen: React.FC<PosScreenProps> = ({
               >
                 {t('pos.exact')}
               </button>
+              <button
+                type="button"
+                onClick={() => setIsTactileNumpadOpen(!isTactileNumpadOpen)}
+                style={{
+                  background: isTactileNumpadOpen ? '#059669' : 'var(--bg-tertiary)',
+                  borderColor: isTactileNumpadOpen ? '#047857' : 'var(--border-glass)',
+                  color: isTactileNumpadOpen ? '#ffffff' : 'var(--text-main)',
+                  border: '1px solid',
+                  borderRadius: '5px',
+                  padding: isTabletMode ? '8px 8px' : '5px 8px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '3px'
+                }}
+                title="Ouvrir le pavé tactile caissier pour saisir le montant espèces"
+              >
+                <Hash size={12} />
+                <span>Clavier</span>
+              </button>
             </div>
+
+            {/* Pavé Tactile Caissier Intégré (Optimisé Tablette & Écran Tactile) */}
+            {isTactileNumpadOpen && (
+              <div style={{
+                background: 'var(--bg-card)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+                padding: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#10b981' }}>
+                    🔢 Pavé Tactile Espèces (MRU)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsTactileNumpadOpen(false)}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px' }}
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
+                  {['7', '8', '9', '+100'].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => handleTactileNumpadInput(val)}
+                      style={{
+                        padding: '8px 4px',
+                        borderRadius: '5px',
+                        border: '1px solid var(--border-glass)',
+                        background: val.startsWith('+') ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-secondary)',
+                        color: val.startsWith('+') ? '#10b981' : 'var(--text-main)',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                  {['4', '5', '6', '+200'].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => handleTactileNumpadInput(val)}
+                      style={{
+                        padding: '8px 4px',
+                        borderRadius: '5px',
+                        border: '1px solid var(--border-glass)',
+                        background: val.startsWith('+') ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-secondary)',
+                        color: val.startsWith('+') ? '#10b981' : 'var(--text-main)',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                  {['1', '2', '3', '+500'].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => handleTactileNumpadInput(val)}
+                      style={{
+                        padding: '8px 4px',
+                        borderRadius: '5px',
+                        border: '1px solid var(--border-glass)',
+                        background: val.startsWith('+') ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-secondary)',
+                        color: val.startsWith('+') ? '#10b981' : 'var(--text-main)',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                  {['0', '00', 'C', '+1000'].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => handleTactileNumpadInput(val)}
+                      style={{
+                        padding: '8px 4px',
+                        borderRadius: '5px',
+                        border: '1px solid var(--border-glass)',
+                        background: val === 'C' ? 'rgba(239, 68, 68, 0.15)' : (val.startsWith('+') ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-secondary)'),
+                        color: val === 'C' ? '#ef4444' : (val.startsWith('+') ? '#10b981' : 'var(--text-main)'),
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Rendu de Monnaie (Instant Change Calculator) */}
             {cashGiven > 0 && (
               <div style={{
-                background: changeDue >= 0 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
-                border: `1px solid ${changeDue >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                padding: '8px 12px',
+                background: changeDue >= 0 ? 'rgba(16, 185, 129, 0.14)' : 'rgba(239, 68, 68, 0.14)',
+                border: `1.5px solid ${changeDue >= 0 ? '#10b981' : '#ef4444'}`,
+                padding: '9px 12px',
                 borderRadius: '8px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 fontSize: '0.85rem'
               }}>
-                <span>{t('pos.received')} : <strong>{cashGiven} MRU</strong></span>
-                <span style={{ color: changeDue >= 0 ? '#10b981' : '#ef4444', fontWeight: 900, fontSize: '0.95rem' }}>
-                  {t('pos.change')} : {changeDue.toFixed(0)} MRU
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase' }}>
+                    {t('pos.received')}
+                  </span>
+                  <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                    {cashGiven} MRU
+                  </span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.7rem', color: changeDue >= 0 ? '#10b981' : '#ef4444', fontWeight: 800, textTransform: 'uppercase' }}>
+                    {changeDue >= 0 ? '💵 MONNAIE À RENDRE' : '⚠️ MANQUE'}
+                  </span>
+                  <div style={{ color: changeDue >= 0 ? '#10b981' : '#ef4444', fontWeight: 900, fontSize: '1.25rem', fontVariantNumeric: 'tabular-nums' }}>
+                    {Math.abs(changeDue).toFixed(0)} <span style={{ fontSize: '0.8rem' }}>MRU</span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -2568,7 +3197,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 type="button"
                 onClick={() => handleCheckout('ESPECES')}
                 style={{
-                  padding: '11px 4px',
+                  padding: isTabletMode ? '13px 4px' : '11px 4px',
                   fontSize: '0.82rem',
                   fontWeight: 800,
                   background: '#059669',
@@ -2594,7 +3223,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                   setIsBankilyModalOpen(true);
                 }}
                 style={{
-                  padding: '11px 4px',
+                  padding: isTabletMode ? '13px 4px' : '11px 4px',
                   fontSize: '0.82rem',
                   fontWeight: 800,
                   color: '#ffffff',
@@ -2620,7 +3249,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                   setIsBankilyModalOpen(true);
                 }}
                 style={{
-                  padding: '11px 4px',
+                  padding: isTabletMode ? '13px 4px' : '11px 4px',
                   fontSize: '0.82rem',
                   fontWeight: 700,
                   color: '#0284c7',
@@ -2642,7 +3271,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
                 type="button"
                 onClick={() => setIsKridiModalOpen(true)}
                 style={{
-                  padding: '11px 4px',
+                  padding: isTabletMode ? '13px 4px' : '11px 4px',
                   fontSize: '0.82rem',
                   fontWeight: 800,
                   color: '#d97706',

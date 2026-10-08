@@ -40,36 +40,63 @@ export const App: React.FC = () => {
       const saved = localStorage.getItem('caissa_account');
       if (!saved) return null;
       const parsed: UserAccount = JSON.parse(saved);
-      // Auto-migration si le compte existant n'a pas encore de points de vente
-      if (!parsed.pointsDeVente || parsed.pointsDeVente.length === 0) {
+      // Auto-migration si le compte existant n'a pas encore les 4 points de vente métiers distincts
+      if (!parsed.pointsDeVente || parsed.pointsDeVente.length < 4 || (parsed.pointsDeVente[0].sector === parsed.pointsDeVente[1]?.sector)) {
+        const baseName = parsed.businessName || 'Groupe Commercial Al-Baraka';
         const defaultPdvs: PointDeVente[] = [
           {
             id: 'pdv-1',
-            name: `${parsed.businessName} (Siège Principal)`,
-            nameAr: `${parsed.businessName} (الفرع الرئيسي)`,
-            sector: parsed.sector || 'market',
+            name: `${baseName} (Boutique & Hanout Al-Baraka)`,
+            nameAr: `${baseName} (بقالة وهانوت البركة)`,
+            sector: 'market',
             code: 'PDV-01',
-            address: parsed.city || 'Tevragh-Zeina, Nouakchott',
+            address: 'Avenue Moktar Ould Daddah, Tevragh-Zeina',
             city: 'Nouakchott',
-            phone: parsed.phone,
+            phone: parsed.phone || '+222 22 14 55 88',
             caisseCount: 2,
             isDefault: true
           },
           {
             id: 'pdv-2',
-            name: `${parsed.businessName} (Succursale Ksar)`,
-            nameAr: `${parsed.businessName} (فرع القصر)`,
-            sector: parsed.sector || 'market',
+            name: `${baseName} (Restaurant & Chwaya El-Ksar)`,
+            nameAr: `${baseName} (مطعم ومشاوي القصر)`,
+            sector: 'restaurant',
             code: 'PDV-02',
-            address: 'Marché Ksar, Nouakchott',
+            address: 'Carrefour Ksar, Nouakchott',
             city: 'Nouakchott',
-            phone: parsed.phone,
+            phone: parsed.phone || '+222 22 14 55 88',
+            caisseCount: 2,
+            isDefault: false
+          },
+          {
+            id: 'pdv-3',
+            name: `${baseName} (Boucherie & Poissonnerie Capitale)`,
+            nameAr: `${baseName} (جزارة ومسمكة العاصمة)`,
+            sector: 'butcher',
+            code: 'PDV-03',
+            address: 'Marché Capitale, Nouakchott',
+            city: 'Nouakchott',
+            phone: parsed.phone || '+222 22 14 55 88',
+            caisseCount: 1,
+            isDefault: false
+          },
+          {
+            id: 'pdv-4',
+            name: `${baseName} (Parapharmacie & Cosmétique Rim)`,
+            nameAr: `${baseName} (صيدلية ومستحضرات التجميل)`,
+            sector: 'cosmetics',
+            code: 'PDV-04',
+            address: 'Centre Commercial Ilot C, Tevragh-Zeina',
+            city: 'Nouakchott',
+            phone: parsed.phone || '+222 22 14 55 88',
             caisseCount: 1,
             isDefault: false
           }
         ];
         parsed.pointsDeVente = defaultPdvs;
-        parsed.activePointDeVenteId = 'pdv-1';
+        if (!parsed.activePointDeVenteId || !defaultPdvs.some(p => p.id === parsed.activePointDeVenteId)) {
+          parsed.activePointDeVenteId = 'pdv-1';
+        }
         try { localStorage.setItem('caissa_account', JSON.stringify(parsed)); } catch {}
       }
       return parsed;
