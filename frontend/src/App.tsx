@@ -12,6 +12,7 @@ import { StockScreen } from './components/StockScreen';
 import { DashboardScreen } from './components/DashboardScreen';
 import { AiHubScreen } from './components/AiHubScreen';
 import { GestionScreen } from './components/GestionScreen';
+import { ComptabiliteScreen } from './components/ComptabiliteScreen';
 import { INITIAL_PRODUCTS } from './data/mockData';
 import type { Product, Table, SectorType } from './data/mockData';
 import { AuthModal } from './components/AuthModal';
@@ -412,6 +413,10 @@ export const App: React.FC = () => {
                 onProductsUpdated={(updated) => setProducts(updated)}
                 initialProducts={products}
               />
+            )}
+
+            {currentTab === 'compta' && (
+              <ComptabiliteScreen sector={sector} />
             )}
           </main>
         </>

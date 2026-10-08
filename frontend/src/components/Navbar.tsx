@@ -22,7 +22,8 @@ import {
   SlidersHorizontal,
   Scale,
   Sparkles,
-  Globe
+  Globe,
+  Calculator
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { loginPinApi } from '../services/api';
@@ -490,6 +491,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               <BookOpen size={14} />
               <span>{t('nav.kridi') || 'الكريدي'}</span>
             </button>
+
+            <button
+              onClick={() => { setCurrentTab('compta'); setIsGestionMenuOpen(false); }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '5px 12px',
+                borderRadius: '6px',
+                fontSize: '0.78rem',
+                fontWeight: currentTab === 'compta' ? 700 : 600,
+                background: currentTab === 'compta' ? '#059669' : 'transparent',
+                color: currentTab === 'compta' ? '#ffffff' : 'var(--text-muted)',
+                border: `1px solid ${currentTab === 'compta' ? '#047857' : 'transparent'}`,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Calculator size={14} />
+              <span>{t('nav.compta') || 'Comptabilité'}</span>
+            </button>
           </>
         )}
 
@@ -526,9 +548,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               padding: '5px 10px',
               borderRadius: '6px',
               fontSize: '0.78rem',
-              fontWeight: ['gestion', 'stock', 'kridi', 'dashboard', 'ai', 'pricing'].includes(currentTab) ? 700 : 600,
-              background: ['gestion', 'stock', 'kridi', 'dashboard', 'ai', 'pricing'].includes(currentTab) ? 'rgba(5, 150, 105, 0.15)' : 'transparent',
-              color: ['gestion', 'stock', 'kridi', 'dashboard', 'ai', 'pricing'].includes(currentTab) ? '#10b981' : 'var(--text-muted)',
+              fontWeight: ['gestion', 'stock', 'kridi', 'dashboard', 'ai', 'pricing', 'compta'].includes(currentTab) ? 700 : 600,
+              background: ['gestion', 'stock', 'kridi', 'dashboard', 'ai', 'pricing', 'compta'].includes(currentTab) ? 'rgba(5, 150, 105, 0.15)' : 'transparent',
+              color: ['gestion', 'stock', 'kridi', 'dashboard', 'ai', 'pricing', 'compta'].includes(currentTab) ? '#10b981' : 'var(--text-muted)',
               border: '1px solid var(--border-glass)',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
@@ -640,6 +662,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <TrendingUp size={13} />
                 <span>Marges & Analyse CA</span>
+              </button>
+
+              <button
+                onClick={() => { setCurrentTab('compta'); setIsGestionMenuOpen(false); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '7px 10px',
+                  borderRadius: '5px',
+                  background: currentTab === 'compta' ? 'var(--bg-tertiary)' : 'transparent',
+                  color: currentTab === 'compta' ? '#10b981' : 'var(--text-main)',
+                  border: 'none',
+                  fontSize: '0.76rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <Calculator size={13} color="#10b981" />
+                <span>📊 Comptabilité & Grand Livre (P&L)</span>
               </button>
 
               <button
