@@ -23,7 +23,12 @@ import {
   Battery,
   Layers,
   Phone,
-  Globe
+  Globe,
+  CreditCard,
+  QrCode,
+  Award,
+  Download,
+  Users
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { UserAccount } from './AuthModal';
@@ -58,6 +63,96 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [trialPhone, setTrialPhone] = useState<string>('');
   const [trialName, setTrialName] = useState<string>('');
   const [trialSuccess, setTrialSuccess] = useState<boolean>(false);
+
+  // État pour la section Fidélité & Portefeuille Cartes Mauritanie
+  const [selectedLoyaltyIndex, setSelectedLoyaltyIndex] = useState<number>(0);
+  const [loyaltyScannedNotification, setLoyaltyScannedNotification] = useState<string | null>(null);
+
+  const loyaltyCardsList = [
+    {
+      id: 'baraka',
+      storeName: 'Supermarché Al-Baraka',
+      category: 'Grande Distribution & Alimentation',
+      city: 'Tevragh-Zeina, Nouakchott',
+      colorGradient: 'linear-gradient(135deg, #059669 0%, #065f46 100%)',
+      accentColor: '#10b981',
+      tier: 'Membre Gold',
+      points: 1450,
+      rewardText: '145 MRU de réduction immédiate en caisse',
+      cardNumber: 'RIM-8492-7710-99',
+      qrCodeData: 'BARAKA-GOLD-RIM-8492',
+      badge: '★ 5% Cashback',
+      perks: ['Cashback automatique sur chaque ticket', 'Coupons exclusifs fruits & légumes', 'Passage prioritaire caisse rapide']
+    },
+    {
+      id: 'khaima',
+      storeName: 'Restaurant Al-Khaima',
+      category: 'Gastronomie & Salons de Thé',
+      city: 'Centre-Ville, Nouakchott',
+      colorGradient: 'linear-gradient(135deg, #b45309 0%, #78350f 100%)',
+      accentColor: '#f59e0b',
+      tier: 'Club VIP Gourmet',
+      points: 820,
+      rewardText: 'Plat signature ou dessert offert dès 900 pts',
+      cardNumber: 'RIM-2204-6188-33',
+      qrCodeData: 'KHAIMA-VIP-RIM-2204',
+      badge: '🍽️ Menu Privilège',
+      perks: ['Table réservée garantie le weekend', '-15% sur les dîners de groupe', 'Thé à la menthe offert à chaque repas']
+    },
+    {
+      id: 'oud',
+      storeName: 'Oud El-Khaleej Parfums',
+      category: 'Parfumerie, Bakhour & Cosmétiques',
+      city: 'Marché Capitale & Tevragh',
+      colorGradient: 'linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)',
+      accentColor: '#a855f7',
+      tier: 'Membre Prestige',
+      points: 1200,
+      rewardText: 'Flacon Bakhour Royal offert débloqué !',
+      cardNumber: 'RIM-9011-3442-88',
+      qrCodeData: 'OUD-ROYAL-RIM-9011',
+      badge: '✨ Prestige Club',
+      perks: ['Testeurs exclusifs d’essences d’Orient', 'Invitation aux ventes privées de fêtes', 'Emballage cadeau de luxe offert']
+    },
+    {
+      id: 'medina_butcher',
+      storeName: 'Boucherie Al-Medina',
+      category: 'Boucherie Moderne & Viandes Fraîches',
+      city: 'Ksar / Tevragh-Zeina',
+      colorGradient: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+      accentColor: '#ef4444',
+      tier: 'Client Privilège',
+      points: 650,
+      rewardText: '1 kg de viande fraîche offert à 800 pts',
+      cardNumber: 'RIM-5510-9082-12',
+      qrCodeData: 'MEDINA-MEAT-RIM-5510',
+      badge: '🥩 Viande 100% Locale',
+      perks: ['Pesée certifiée et découpe sur mesure', 'Offres spéciales méchoui Aïd & fêtes', 'Livraison prioritaire à domicile']
+    },
+    {
+      id: 'medina_chic',
+      storeName: 'Medina Chic Mode',
+      category: 'Prêt-à-Porter & Accessoires',
+      city: 'Avenue Moktar Ould Daddah',
+      colorGradient: 'linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%)',
+      accentColor: '#3b82f6',
+      tier: 'Silver Fashion',
+      points: 480,
+      rewardText: '-10% sur toute la nouvelle collection',
+      cardNumber: 'RIM-3390-1123-54',
+      qrCodeData: 'CHIC-SILVER-RIM-3390',
+      badge: '👗 Tendance RIM',
+      perks: ['Retouches gratuites en boutique', 'Points doublés les mercredis', 'Accès avant-première aux arrivages']
+    }
+  ];
+
+  const handleSimulateLoyaltyScan = () => {
+    const card = loyaltyCardsList[selectedLoyaltyIndex];
+    setLoyaltyScannedNotification(`🎉 Carte ${card.storeName} scannée avec succès en caisse ! +50 points crédités.`);
+    setTimeout(() => {
+      setLoyaltyScannedNotification(null);
+    }, 3500);
+  };
 
   // États pour l'Application Mobile Interactive & Activité en Direct
   const [mobileTab, setMobileTab] = useState<'live' | 'payments' | 'top'>('live');
@@ -234,6 +329,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </a>
             <a href="#kridi" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
               {i18n.language === 'ar' ? 'دفتر الكريدي' : 'الكريدي (Crédits)'}
+            </a>
+            <a href="#fidelite" style={{ textDecoration: 'none', color: '#10b981', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Sparkles size={14} color="#10b981" />
+              {i18n.language === 'ar' ? 'بطاقات الولاء (جديد)' : 'Fidélité & Cartes (Nouveau)'}
             </a>
             <a href="#pricing" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
               {i18n.language === 'ar' ? 'الأسعار' : 'Tarifs'}
@@ -2694,6 +2793,694 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 borderTop: '1px solid rgba(255, 255, 255, 0.05)'
               }}>
                 <div style={{ width: '90px', height: '4px', background: 'rgba(255, 255, 255, 0.4)', borderRadius: '999px' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. BIS - ANNONCE OFFICIELLE APPLICATION MOBILE & WALLET FIDÉLITÉ MAURITANIE */}
+      <section id="fidelite" style={{
+        padding: '90px 24px',
+        maxWidth: '1240px',
+        margin: '0 auto',
+        width: '100%',
+        position: 'relative'
+      }}>
+        {/* Glow ambient background effects */}
+        <div style={{
+          position: 'absolute',
+          top: '20%',
+          right: '5%',
+          width: '500px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(217, 119, 6, 0.08) 50%, transparent 70%)',
+          filter: 'blur(70px)',
+          zIndex: 0,
+          pointerEvents: 'none'
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '10%',
+          left: '5%',
+          width: '450px',
+          height: '350px',
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%)',
+          filter: 'blur(70px)',
+          zIndex: 0,
+          pointerEvents: 'none'
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Header Title & Pitch */}
+          <div style={{ textAlign: 'center', maxWidth: '840px', margin: '0 auto 56px' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.18), rgba(245, 158, 11, 0.18))',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
+              borderRadius: '999px',
+              padding: '8px 18px',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              color: '#34d399',
+              marginBottom: '18px',
+              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.15)'
+            }}>
+              <Award size={16} color="#fbbf24" />
+              <span>{i18n.language === 'ar' ? 'حصرياً في موريتانيا · المحفظة الرقمية لبطاقات الولاء' : 'NOUVEAU EN MAURITANIE · APPLICATION & WALLET FIDÉLITÉ CLIENTÈLE'}</span>
+            </div>
+
+            <h2 style={{
+              fontSize: 'clamp(2rem, 3.8vw, 3rem)',
+              fontWeight: 900,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.18,
+              color: 'var(--text-main)',
+              marginBottom: '20px'
+            }}>
+              {i18n.language === 'ar' ? (
+                <>
+                  جميع بطاقات الولاء الموريتانية في{' '}
+                  <span style={{
+                    background: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #fbbf24 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    محفظة رقمية واحدة على هاتفك
+                  </span>
+                </>
+              ) : (
+                <>
+                  Dites adieu aux cartes papier perdues.{' '}
+                  <span style={{
+                    background: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #fbbf24 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    Un seul portefeuille digital pour toutes vos enseignes.
+                  </span>
+                </>
+              )}
+            </h2>
+
+            <p style={{
+              fontSize: '1.05rem',
+              lineHeight: 1.65,
+              color: 'var(--text-muted)',
+              margin: '0 auto',
+              maxWidth: '720px'
+            }}>
+              {i18n.language === 'ar' 
+                ? 'تطبيق عصري وسريع يتيح للزبناء حفظ بطاقات الولاء لأشهر المحلات والسوبرماركتات والمطاعم في موريتانيا، كسب النقاط الفوري عند الدفع، وجذب زبناء جدد لمشروعك عبر شبكة Caissa الذكية.'
+                : 'Permettez à vos clients de numériser toutes leurs cartes de fidélité préférées (Supermarchés, Restaurants, Parfumeries, Boucheries) sur leur smartphone, gagnez leur fidélité et attirez un flux continu de nouveaux clients à Nouakchott et dans toute la Mauritanie.'}
+            </p>
+          </div>
+
+          {/* Interactive Presentation Grid: Left Phone App Mockup / Right Business Value & Downloads */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+            gap: '40px',
+            alignItems: 'center'
+          }}>
+            {/* LEFT: Realistic Luxury Smartphone Mockup with Mauritanian Loyalty Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {/* Phone Container */}
+              <div style={{
+                width: '100%',
+                maxWidth: '380px',
+                borderRadius: '42px',
+                background: '#090d16',
+                border: '7px solid #1f293d',
+                boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.2)',
+                overflow: 'hidden',
+                position: 'relative'
+              }}>
+                {/* Phone Top Notch / Dynamic Island */}
+                <div style={{
+                  padding: '12px 20px 8px',
+                  background: '#090d16',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#94a3b8' }}>09:41</span>
+                  <div style={{
+                    width: '90px',
+                    height: '18px',
+                    background: '#000',
+                    borderRadius: '999px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+                    <span style={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 600 }}>Caissa Pay</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Wifi size={12} color="#94a3b8" />
+                    <Battery size={13} color="#94a3b8" />
+                  </div>
+                </div>
+
+                {/* App Internal Header */}
+                <div style={{
+                  padding: '14px 18px',
+                  background: 'linear-gradient(180deg, #0d1527 0%, #090d16 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <CreditCard size={18} color="#fff" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f8fafc' }}>Caissa Wallet</div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>🇲🇷 Mauritanie · 5 Cartes Actives</div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleSimulateLoyaltyScan}
+                    style={{
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      border: '1px solid rgba(16, 185, 129, 0.4)',
+                      borderRadius: '8px',
+                      padding: '5px 9px',
+                      color: '#34d399',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title="Simuler un scan en caisse"
+                  >
+                    <QrCode size={13} />
+                    <span>Scan Caisse</span>
+                  </button>
+                </div>
+
+                {/* Toast Notification Simulation */}
+                {loyaltyScannedNotification && (
+                  <div style={{
+                    margin: '8px 12px 0',
+                    padding: '8px 12px',
+                    background: 'rgba(16, 185, 129, 0.95)',
+                    color: '#fff',
+                    borderRadius: '10px',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    animation: 'fadeIn 0.3s ease'
+                  }}>
+                    <Sparkles size={14} />
+                    <span>{loyaltyScannedNotification}</span>
+                  </div>
+                )}
+
+                {/* Active Loyalty Card Visual */}
+                <div style={{ padding: '16px' }}>
+                  {(() => {
+                    const activeCard = loyaltyCardsList[selectedLoyaltyIndex];
+                    return (
+                      <div style={{
+                        borderRadius: '20px',
+                        background: activeCard.colorGradient,
+                        padding: '18px',
+                        color: '#ffffff',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: '0 15px 35px rgba(0, 0, 0, 0.45)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        {/* Background subtle watermark icon */}
+                        <div style={{
+                          position: 'absolute',
+                          right: '-15px',
+                          bottom: '-15px',
+                          opacity: 0.12,
+                          transform: 'rotate(-15deg)',
+                          pointerEvents: 'none'
+                        }}>
+                          <CreditCard size={140} color="#fff" />
+                        </div>
+
+                        {/* Top Card Info */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                          <div>
+                            <span style={{
+                              background: 'rgba(0, 0, 0, 0.3)',
+                              backdropFilter: 'blur(4px)',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.65rem',
+                              fontWeight: 800,
+                              letterSpacing: '0.04em',
+                              border: '1px solid rgba(255, 255, 255, 0.2)'
+                            }}>
+                              {activeCard.badge}
+                            </span>
+                            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '6px 0 2px', letterSpacing: '-0.02em' }}>
+                              {activeCard.storeName}
+                            </h3>
+                            <p style={{ fontSize: '0.68rem', opacity: 0.9, margin: 0 }}>
+                              📍 {activeCard.city}
+                            </p>
+                          </div>
+
+                          <div style={{
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            borderRadius: '10px',
+                            padding: '6px 8px',
+                            textAlign: 'right'
+                          }}>
+                            <div style={{ fontSize: '0.6rem', opacity: 0.85, fontWeight: 600 }}>Statut</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>{activeCard.tier}</div>
+                          </div>
+                        </div>
+
+                        {/* Middle: Points & Reward */}
+                        <div style={{
+                          background: 'rgba(0, 0, 0, 0.25)',
+                          borderRadius: '12px',
+                          padding: '10px 12px',
+                          marginBottom: '14px',
+                          backdropFilter: 'blur(6px)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}>
+                          <div>
+                            <div style={{ fontSize: '0.62rem', opacity: 0.8 }}>Solde de Points</div>
+                            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#fef08a' }}>
+                              {activeCard.points} <span style={{ fontSize: '0.75rem' }}>pts</span>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right', maxWidth: '140px' }}>
+                            <div style={{ fontSize: '0.6rem', opacity: 0.8 }}>Avantage Débloqué</div>
+                            <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#86efac' }}>
+                              {activeCard.rewardText}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bottom: Barcode / QR Simulation & Card Number */}
+                        <div style={{
+                          background: '#ffffff',
+                          borderRadius: '10px',
+                          padding: '8px 12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}>
+                          <div>
+                            {/* Stylized Barcode Lines */}
+                            <div style={{ display: 'flex', gap: '2px', height: '24px', alignItems: 'center' }}>
+                              {[3, 1, 4, 1, 2, 5, 1, 3, 2, 4, 1, 3, 2, 5, 1, 2, 4, 1, 3, 2, 1, 4, 2].map((w, i) => (
+                                <div key={i} style={{ width: `${w}px`, height: '22px', background: '#0f172a' }} />
+                              ))}
+                            </div>
+                            <div style={{ fontSize: '0.58rem', color: '#475569', fontWeight: 700, letterSpacing: '0.08em', marginTop: '2px' }}>
+                              {activeCard.cardNumber}
+                            </div>
+                          </div>
+
+                          <div style={{
+                            background: '#f1f5f9',
+                            padding: '4px',
+                            borderRadius: '6px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            <QrCode size={26} color="#0f172a" />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Card Switcher Carousel (Clickable recognized Mauritanian brands) */}
+                <div style={{ padding: '0 16px 14px' }}>
+                  <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#94a3b8', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Vos Enseignes Enregistrées</span>
+                    <span style={{ color: '#10b981' }}>Touchez pour afficher</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {loyaltyCardsList.map((card, idx) => (
+                      <div
+                        key={card.id}
+                        onClick={() => setSelectedLoyaltyIndex(idx)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '7px 10px',
+                          borderRadius: '10px',
+                          background: selectedLoyaltyIndex === idx ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                          border: selectedLoyaltyIndex === idx ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid rgba(255, 255, 255, 0.05)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            background: card.accentColor
+                          }} />
+                          <div>
+                            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: selectedLoyaltyIndex === idx ? '#fff' : '#cbd5e1' }}>
+                              {card.storeName}
+                            </div>
+                            <div style={{ fontSize: '0.6rem', color: '#64748b' }}>
+                              {card.tier} · {card.points} pts
+                            </div>
+                          </div>
+                        </div>
+
+                        <span style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          color: selectedLoyaltyIndex === idx ? '#34d399' : '#64748b'
+                        }}>
+                          {selectedLoyaltyIndex === idx ? '● Actif' : 'Afficher'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Phone Bottom Bar */}
+                <div style={{
+                  padding: '10px 0 12px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  background: '#090d16',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+                }}>
+                  <div style={{ width: '100px', height: '4px', background: 'rgba(255, 255, 255, 0.35)', borderRadius: '999px' }} />
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Business Impact, Merchant Benefits & Download Badges */}
+            <div>
+              {/* Feature Highlights Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+                <div style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '16px',
+                  padding: '18px',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+                }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '12px'
+                  }}>
+                    <CreditCard size={20} color="#10b981" />
+                  </div>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 6px' }}>
+                    {i18n.language === 'ar' ? 'جميع البطاقات في جيب واحد' : 'Toutes les cartes dans un seul Wallet'}
+                  </h4>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
+                    {i18n.language === 'ar'
+                      ? 'لا داعي للبحث عن بطاقات بلاستيكية أو ورق قديم. الزبون يقدم هاتفه لمسحه في ثانية واحدة.'
+                      : 'Plus jamais de carte oubliée à la maison. Vos clients scannent leur QR en 1 seconde devant le lecteur Caissa.'}
+                  </p>
+                </div>
+
+                <div style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '16px',
+                  padding: '18px',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+                }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: 'rgba(245, 158, 11, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '12px'
+                  }}>
+                    <TrendingUp size={20} color="#f59e0b" />
+                  </div>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 6px' }}>
+                    {i18n.language === 'ar' ? 'مضاعفة عودة الزبناء' : 'Fidélisation Clientèle x3'}
+                  </h4>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
+                    {i18n.language === 'ar'
+                      ? 'نقاط تراكمية، هدايا عيد الفطر والأعياد، وإشعارات بالواتساب عند وصول منتجات جديدة وتخفيضات.'
+                      : 'Points cumulables, cashback en MRU et alertes WhatsApp personnalisées pour faire revenir vos clients.'}
+                  </p>
+                </div>
+
+                <div style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '16px',
+                  padding: '18px',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+                }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: 'rgba(59, 130, 246, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '12px'
+                  }}>
+                    <Users size={20} color="#3b82f6" />
+                  </div>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 6px' }}>
+                    {i18n.language === 'ar' ? 'استقطاب زبناء جدد يومياً' : 'Attirez de nouveaux clients'}
+                  </h4>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
+                    {i18n.language === 'ar'
+                      ? 'متجرك يظهر في دليل محلات Caissa للآلاف من مستخدمي التطبيق في نواكشوط وانواذيبو وروصو.'
+                      : 'Votre enseigne est référencée sur le réseau Caissa et découverte par des milliers de consommateurs locaux.'}
+                  </p>
+                </div>
+
+                <div style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '16px',
+                  padding: '18px',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+                }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: 'rgba(168, 85, 247, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '12px'
+                  }}>
+                    <Zap size={20} color="#a855f7" />
+                  </div>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 6px' }}>
+                    {i18n.language === 'ar' ? 'متصل فوراً بكاشير Caissa' : 'Synchronisé Direct avec le POS'}
+                  </h4>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
+                    {i18n.language === 'ar'
+                      ? 'تطبيق الكاشير يتعرف على الزبون تلقائياً، يطبق خصوماته ويخصم النقاط من الفاتورة مباشرة.'
+                      : 'Reconnaissance instantanée à la caisse, déduction des points sur le ticket et zéro configuration manuelle.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* DOWNLOAD & APP ACCESS SECTION */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(245, 158, 11, 0.05) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                borderRadius: '20px',
+                padding: '24px',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <Download size={18} color="#10b981" />
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#10b981', letterSpacing: '0.04em' }}>
+                    {i18n.language === 'ar' ? 'تحميل التطبيق الرسمي للزبناء' : 'TÉLÉCHARGEMENT DE L\'APPLICATION CLIENT'}
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 8px' }}>
+                  {i18n.language === 'ar' ? 'حمل Caissa Wallet مجاناً أو استخدمه فوراً' : 'Téléchargez Caissa Fidélité sur votre mobile'}
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 20px', lineHeight: 1.5 }}>
+                  {i18n.language === 'ar'
+                    ? 'متوفر على جميع الهواتف الذكية. سجل بطاقاتك خلال أقل من دقيقة وابدأ بجمع المكافآت عند كل شراء.'
+                    : 'Compatible iOS, Android et Web PWA instantanée. Enregistrez vos cartes en moins de 60 secondes.'}
+                </p>
+
+                {/* Download Store Badges */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
+                  {/* Apple App Store */}
+                  <a
+                    href="#trial-form"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      alert('Caissa Wallet iOS : Version Pré-lancement Mauritanie. Inscrivez-vous ci-dessous pour recevoir l\'accès Beta prioritaire TestFlight.');
+                    }}
+                    style={{
+                      background: '#0a0f1d',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '12px',
+                      padding: '10px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      textDecoration: 'none',
+                      color: '#ffffff',
+                      transition: 'transform 0.2s, border-color 0.2s',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                    }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.13.65-2.79 1.41-.58.66-1.1 1.74-1.04 2.8.07 0 2.21-.59 2.82-1.34z"/>
+                    </svg>
+                    <div>
+                      <div style={{ fontSize: '0.62rem', opacity: 0.7, textTransform: 'uppercase' }}>Télécharger dans l'</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>App Store</div>
+                    </div>
+                  </a>
+
+                  {/* Google Play Store */}
+                  <a
+                    href="#trial-form"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      alert('Caissa Wallet Android : APK disponible pour les commerces partenaires. Contactez le support Caissa Mauritanie via WhatsApp.');
+                    }}
+                    style={{
+                      background: '#0a0f1d',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '12px',
+                      padding: '10px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      textDecoration: 'none',
+                      color: '#ffffff',
+                      transition: 'transform 0.2s, border-color 0.2s',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                    }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff">
+                      <path d="M3.609 1.814L13.792 12 3.61 22.186a1.99 1.99 0 0 1-.61-1.464V3.278c0-.573.226-1.1.609-1.464zm11.242 11.245l2.456 2.456-11.89 6.86 9.434-9.316zm0-2.118L5.417 1.625l11.89 6.86-2.456 2.456zm1.472 1.059l4.088 2.36a1.5 1.5 0 0 1 0 2.59l-4.088 2.36-1.472-1.472 1.472-5.838z"/>
+                    </svg>
+                    <div>
+                      <div style={{ fontSize: '0.62rem', opacity: 0.7, textTransform: 'uppercase' }}>DISPONIBLE SUR</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>Google Play</div>
+                    </div>
+                  </a>
+
+                  {/* Instant Web PWA */}
+                  <button
+                    onClick={() => {
+                      onEnterApp('pos');
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '10px 18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      color: '#ffffff',
+                      cursor: 'pointer',
+                      fontWeight: 800,
+                      boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)'
+                    }}
+                  >
+                    <Smartphone size={20} />
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: '0.62rem', opacity: 0.85, textTransform: 'uppercase' }}>Accès Instantané</div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>Web App PWA</div>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Merchant Partnership Callout */}
+                <div style={{
+                  borderTop: '1px dashed rgba(16, 185, 129, 0.3)',
+                  paddingTop: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-main)', fontWeight: 700 }}>
+                      {i18n.language === 'ar' ? 'هل تملك محلاً في موريتانيا وتريد ربطه؟' : 'Vous avez un commerce et souhaitez rejoindre le réseau ?'}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      const formEl = document.getElementById('trial-form');
+                      if (formEl) formEl.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    style={{
+                      background: 'none',
+                      border: '1px solid #10b981',
+                      borderRadius: '8px',
+                      color: '#10b981',
+                      padding: '6px 12px',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <span>{i18n.language === 'ar' ? 'تفعيل ميزة الولاء لمشروعي' : 'Activer sur ma caisse'}</span>
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
