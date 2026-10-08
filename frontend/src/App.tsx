@@ -206,6 +206,27 @@ export const App: React.FC = () => {
     setIsAuthModalOpen(true);
   };
 
+  // Protection stricte de l'accès logiciel : vérifie la connexion avant d'accéder aux écrans caisse
+  const handleProtectedNavigate = (tab?: string) => {
+    if (!account) {
+      showToast("🔒 Connexion requise : Veuillez vous identifier pour accéder au logiciel.");
+      setAuthModalMode('login');
+      setIsAuthModalOpen(true);
+      return;
+    }
+    setCurrentTab(tab || 'pos');
+  };
+
+  // Sécurité renforcée : si aucun compte connecté et écran interne actif, renvoyer vers la vitrine et demander la connexion
+  useEffect(() => {
+    if (!account && currentTab !== 'landing') {
+      setCurrentTab('landing');
+      setAuthModalMode('login');
+      setIsAuthModalOpen(true);
+      showToast("🔒 Accès protégé : Veuillez vous connecter pour accéder au logiciel.");
+    }
+  }, [account, currentTab]);
+
   const handleAccountSuccess = (newAccount: UserAccount) => {
     setAccount(newAccount);
     setSector(newAccount.sector);
@@ -279,10 +300,10 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* If Landing Page mode, render Landing Page Portal */}
-      {currentTab === 'landing' ? (
+      {/* If Landing Page mode, or user is not logged in, render Landing Page Portal */}
+      {currentTab === 'landing' || !account ? (
         <LandingPage
-          onEnterApp={(tab) => setCurrentTab(tab || 'pos')}
+          onEnterApp={handleProtectedNavigate}
           sector={sector}
           setSector={setSector}
           theme={theme}

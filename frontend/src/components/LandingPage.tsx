@@ -122,7 +122,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     if (!trialPhone) return;
     setTrialSuccess(true);
     setTimeout(() => {
-      onEnterApp('pos');
+      if (onOpenAuthModal) {
+        onOpenAuthModal('register', 'restaurant');
+      } else {
+        onEnterApp('pos');
+      }
     }, 1500);
   };
 
@@ -144,7 +148,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       }}>
         <span>🎉 Offre Lancement Mauritanie : Jusqu'à -50% sur l'abonnement annuel & 15 jours d'essai 100% gratuit !</span>
         <button 
-          onClick={() => onEnterApp('pricing')}
+          onClick={() => {
+            const pricingEl = document.getElementById('pricing');
+            if (pricingEl) {
+              pricingEl.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
           style={{
             background: 'rgba(255, 255, 255, 0.25)',
             border: 'none',
@@ -579,19 +588,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </button>
 
             <button
-              onClick={() => onEnterApp('pos')}
+              onClick={() => {
+                if (account) {
+                  onEnterApp('pos');
+                } else if (onOpenAuthModal) {
+                  onOpenAuthModal('login');
+                } else {
+                  onEnterApp('pos');
+                }
+              }}
               className="hero-cta-btn-glass"
             >
               <Store size={18} color="#10b981" />
-              <span>{i18n.language === 'fr' ? 'Lancer la Démo Caisse (go.caissa.mr)' : 'تشغيل العرض التجريبي للكاشير'}</span>
+              <span>
+                {account 
+                  ? (i18n.language === 'fr' ? 'Accéder à la Caisse POS' : 'فتح نقطة البيع') 
+                  : (i18n.language === 'fr' ? 'Se Connecter à la Caisse' : 'تسجيل الدخول إلى نقطة البيع')}
+              </span>
             </button>
 
             <button
-              onClick={() => onEnterApp('kridi')}
+              onClick={() => {
+                if (account) {
+                  onEnterApp('kridi');
+                } else if (onOpenAuthModal) {
+                  onOpenAuthModal('login');
+                } else {
+                  onEnterApp('kridi');
+                }
+              }}
               className="hero-cta-btn-glass"
             >
               <BookOpen size={18} color="#a855f7" />
-              <span>{i18n.language === 'fr' ? 'Découvrir le Carnet Kridi' : 'اكتشف دفتر الكريدي'}</span>
+              <span>
+                {account 
+                  ? (i18n.language === 'fr' ? 'Accéder au Carnet Kridi' : 'الدخول إلى دفتر الكريدي') 
+                  : (i18n.language === 'fr' ? 'Carnet Kridi (Connexion)' : 'دفتر الكريدي (تسجيل الدخول)')}
+              </span>
             </button>
 
             <a
@@ -980,6 +1013,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
               <button
                 onClick={() => {
+                  if (!account) {
+                    if (onOpenAuthModal) onOpenAuthModal('register', showcaseSector);
+                    else onEnterApp('pos');
+                    return;
+                  }
                   setSector(showcaseSector);
                   onEnterApp(
                     showcaseSector === 'restaurant'
@@ -997,7 +1035,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   background: showcaseSector === 'restaurant' ? '#ea580c' : showcaseSector === 'market' ? '#10b981' : showcaseSector === 'butcher' ? '#d97706' : '#0284c7'
                 }}
               >
-                Tester ce mode ➔
+                {account ? 'Tester ce mode ➔' : 'Activer ce mode (Essai) ➔'}
               </button>
             </div>
           </div>
@@ -1408,11 +1446,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             <button
-              onClick={() => onEnterApp(activePreviewTab)}
+              onClick={() => {
+                if (!account) {
+                  if (onOpenAuthModal) onOpenAuthModal('login');
+                  else onEnterApp(activePreviewTab);
+                  return;
+                }
+                onEnterApp(activePreviewTab);
+              }}
               className="btn-primary"
               style={{ padding: '6px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              <span>Ouvrir ce module dans le SaaS</span>
+              <span>{account ? 'Ouvrir ce module dans le SaaS' : 'Se Connecter pour Ouvrir'}</span>
               <ExternalLink size={14} />
             </button>
           </div>
@@ -1464,10 +1509,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '14px' }}>
-                  <button onClick={() => onEnterApp('pos')} className="btn-secondary" style={{ padding: '8px', fontSize: '0.75rem', color: '#f97316' }}>
+                  <button onClick={() => {
+                    if (!account) {
+                      if (onOpenAuthModal) onOpenAuthModal('login');
+                      else onEnterApp('pos');
+                    } else {
+                      onEnterApp('pos');
+                    }
+                  }} className="btn-secondary" style={{ padding: '8px', fontSize: '0.75rem', color: '#f97316' }}>
                     📱 Payer par Bankily
                   </button>
-                  <button onClick={() => onEnterApp('pos')} className="btn-secondary" style={{ padding: '8px', fontSize: '0.75rem', color: '#60a5fa' }}>
+                  <button onClick={() => {
+                    if (!account) {
+                      if (onOpenAuthModal) onOpenAuthModal('login');
+                      else onEnterApp('pos');
+                    } else {
+                      onEnterApp('pos');
+                    }
+                  }} className="btn-secondary" style={{ padding: '8px', fontSize: '0.75rem', color: '#60a5fa' }}>
                     📱 Payer par Masrvi
                   </button>
                 </div>
@@ -1660,7 +1719,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <div>1x Thé Traditionnel Atay (3 verres)</div>
                 </div>
                 <div style={{ marginTop: '10px', textAlign: 'right' }}>
-                  <button onClick={() => onEnterApp('kds')} className="btn-primary" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>
+                  <button onClick={() => {
+                    if (!account) {
+                      if (onOpenAuthModal) onOpenAuthModal('login');
+                      else onEnterApp('kds');
+                    } else {
+                      onEnterApp('kds');
+                    }
+                  }} className="btn-primary" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>
                     Passer à l'Écran Cuisine
                   </button>
                 </div>
@@ -1843,16 +1909,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <button
                 onClick={() => {
                   setSector('market');
-                  onEnterApp('pos');
+                  if (account) {
+                    onEnterApp('pos');
+                  } else if (onOpenAuthModal) {
+                    onOpenAuthModal('register', 'market');
+                  } else {
+                    onEnterApp('pos');
+                  }
                 }}
                 className="sector-btn-action"
                 style={{
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-glass)',
-                  color: 'var(--text-main)'
+                  background: 'linear-gradient(135deg, #065f46 0%, #10b981 100%)',
+                  color: '#ffffff',
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
                 }}
               >
-                <span>Tester Mode Boutique (Démo)</span>
+                <span>{account ? 'Accéder Mode Boutique' : 'Créer Compte Boutique (14j)'}</span>
                 <ArrowRight size={16} />
               </button>
             </div>
@@ -1908,16 +1980,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <button
                 onClick={() => {
                   setSector('butcher');
-                  onEnterApp('pos');
+                  if (account) {
+                    onEnterApp('pos');
+                  } else if (onOpenAuthModal) {
+                    onOpenAuthModal('register', 'butcher');
+                  } else {
+                    onEnterApp('pos');
+                  }
                 }}
                 className="sector-btn-action"
                 style={{
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-glass)',
-                  color: 'var(--text-main)'
+                  background: 'linear-gradient(135deg, #b45309 0%, #d97706 100%)',
+                  color: '#ffffff',
+                  boxShadow: '0 4px 14px rgba(217, 119, 6, 0.4)'
                 }}
               >
-                <span>Tester Mode Pesée (Démo)</span>
+                <span>{account ? 'Accéder Mode Pesée' : 'Créer Compte Boucherie (14j)'}</span>
                 <ArrowRight size={16} />
               </button>
             </div>
@@ -1973,16 +2051,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <button
                 onClick={() => {
                   setSector('cosmetics');
-                  onEnterApp('pos');
+                  if (account) {
+                    onEnterApp('pos');
+                  } else if (onOpenAuthModal) {
+                    onOpenAuthModal('register', 'cosmetics');
+                  } else {
+                    onEnterApp('pos');
+                  }
                 }}
                 className="sector-btn-action"
                 style={{
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-glass)',
-                  color: 'var(--text-main)'
+                  background: 'linear-gradient(135deg, #0369a1 0%, #0284c7 100%)',
+                  color: '#ffffff',
+                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)'
                 }}
               >
-                <span>Tester Mode Cosmétique (Démo)</span>
+                <span>{account ? 'Accéder Mode Beauté' : 'Créer Compte Cosmétiques (14j)'}</span>
                 <ArrowRight size={16} />
               </button>
             </div>
@@ -2124,7 +2208,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </a>
 
               <button
-                onClick={() => onEnterApp('dashboard')}
+                onClick={() => {
+                  if (!account) {
+                    if (onOpenAuthModal) onOpenAuthModal('login');
+                    else onEnterApp('dashboard');
+                  } else {
+                    onEnterApp('dashboard');
+                  }
+                }}
                 className="btn-primary"
                 style={{
                   padding: '10px 18px',
@@ -2832,7 +2923,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
               <button
-                onClick={() => onEnterApp('pricing')}
+                onClick={() => {
+                  if (!account) {
+                    if (onOpenAuthModal) onOpenAuthModal('register', 'restaurant');
+                    else onEnterApp('pricing');
+                  } else {
+                    onEnterApp('pricing');
+                  }
+                }}
                 className="btn-pricing-shimmer"
               >
                 <span>Payer par Bankily ou Masrvi</span>
@@ -3062,11 +3160,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div>
             <div style={{ fontWeight: 800, color: 'var(--text-main)', marginBottom: '10px' }}>Modules & Services</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <span onClick={() => onEnterApp('pos')} style={{ cursor: 'pointer' }}>Point de Vente POS</span>
-              <span onClick={() => onEnterApp('kridi')} style={{ cursor: 'pointer' }}>Carnet الكريدي</span>
-              <span onClick={() => onEnterApp('stock')} style={{ cursor: 'pointer' }}>Gestion des Stocks</span>
-              <span onClick={() => onEnterApp('dashboard')} style={{ cursor: 'pointer' }}>Marges & Rentabilité</span>
-              <span onClick={() => onEnterApp('kds')} style={{ cursor: 'pointer' }}>Écran Cuisine (KDS)</span>
+              <span onClick={() => { if (!account) { onOpenAuthModal?.('login'); } else { onEnterApp('pos'); } }} style={{ cursor: 'pointer' }}>Point de Vente POS</span>
+              <span onClick={() => { if (!account) { onOpenAuthModal?.('login'); } else { onEnterApp('kridi'); } }} style={{ cursor: 'pointer' }}>Carnet الكريدي</span>
+              <span onClick={() => { if (!account) { onOpenAuthModal?.('login'); } else { onEnterApp('stock'); } }} style={{ cursor: 'pointer' }}>Gestion des Stocks</span>
+              <span onClick={() => { if (!account) { onOpenAuthModal?.('login'); } else { onEnterApp('dashboard'); } }} style={{ cursor: 'pointer' }}>Marges & Rentabilité</span>
+              <span onClick={() => { if (!account) { onOpenAuthModal?.('login'); } else { onEnterApp('kds'); } }} style={{ cursor: 'pointer' }}>Écran Cuisine (KDS)</span>
             </div>
           </div>
 
