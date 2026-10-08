@@ -490,9 +490,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           }}>
             {i18n.language === 'fr' ? 'La Caisse Enregistreuse Intelligente pour ' : 'نظام الكاشير الذكي الخاص بـ '}
             <span style={{
-              background: 'linear-gradient(135deg, #006233 0%, #16a34a 50%, #10b981 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#10b981',
               display: 'inline-block'
             }}>
               {i18n.language === 'fr' ? 'Boutiques & Restaurants' : 'المحلات والمطاعم'}
@@ -741,28 +739,57 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </span>
           </div>
 
-          <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 900, letterSpacing: '-0.02em', margin: '0 0 10px' }}>
-            {showcaseSector === 'restaurant' && 'Un Système Restaurant Complet & '}
-            {showcaseSector === 'market' && 'Caisse Douchette Ultra-Rapide & '}
-            {showcaseSector === 'butcher' && 'Pesée Connectée en Direct & '}
-            {showcaseSector === 'cosmetics' && 'Gestion Parfaite des Nuances, Lots & '}
-            <span style={{
-              background: showcaseSector === 'restaurant' 
-                ? 'linear-gradient(135deg, #ea580c 0%, #f59e0b 50%, #10b981 100%)'
-                : showcaseSector === 'market'
-                ? 'linear-gradient(135deg, #10b981 0%, #059669 50%, #0284c7 100%)'
-                : showcaseSector === 'butcher'
-                ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #ea580c 100%)'
-                : 'linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #8b5cf6 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              display: 'inline-block'
-            }}>
-              {showcaseSector === 'restaurant' && 'Ultra-Fluide en Direct'}
-              {showcaseSector === 'market' && 'Carnet Kridi Intelligent'}
-              {showcaseSector === 'butcher' && 'Calcul Prix au Kilogramme'}
-              {showcaseSector === 'cosmetics' && 'Péremptions DLUO'}
-            </span>
+          <h2 style={{ 
+            fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', 
+            fontWeight: 900, 
+            letterSpacing: '-0.02em', 
+            margin: '0 0 10px',
+            color: 'var(--text-main)',
+            direction: i18n.language === 'ar' ? 'rtl' : 'ltr'
+          }}>
+            {i18n.language === 'ar' ? (
+              <>
+                {showcaseSector === 'restaurant' && 'نظام متكامل للمطاعم و '}
+                {showcaseSector === 'market' && 'كاشير فائق السرعة و '}
+                {showcaseSector === 'butcher' && 'ميزان إلكتروني متصل و '}
+                {showcaseSector === 'cosmetics' && 'إدارة الأصناف والصلاحية و '}
+                <span style={{
+                  color: showcaseSector === 'restaurant' 
+                    ? '#ea580c' 
+                    : showcaseSector === 'market' 
+                    ? '#10b981' 
+                    : showcaseSector === 'butcher' 
+                    ? '#d97706' 
+                    : '#0284c7'
+                }}>
+                  {showcaseSector === 'restaurant' && 'مباشر وشديد السلاسة'}
+                  {showcaseSector === 'market' && 'دفتر كريدي ذكي'}
+                  {showcaseSector === 'butcher' && 'حساب سعر الكيلوغرام'}
+                  {showcaseSector === 'cosmetics' && 'تتبع دقيق للصلاحية DLUO'}
+                </span>
+              </>
+            ) : (
+              <>
+                {showcaseSector === 'restaurant' && 'Un Système Restaurant Complet & '}
+                {showcaseSector === 'market' && 'Caisse Douchette Ultra-Rapide & '}
+                {showcaseSector === 'butcher' && 'Pesée Connectée en Direct & '}
+                {showcaseSector === 'cosmetics' && 'Gestion Parfaite des Nuances, Lots & '}
+                <span style={{
+                  color: showcaseSector === 'restaurant' 
+                    ? '#ea580c' 
+                    : showcaseSector === 'market' 
+                    ? '#10b981' 
+                    : showcaseSector === 'butcher' 
+                    ? '#d97706' 
+                    : '#0284c7'
+                }}>
+                  {showcaseSector === 'restaurant' && 'Ultra-Fluide en Direct'}
+                  {showcaseSector === 'market' && 'Carnet Kridi Intelligent'}
+                  {showcaseSector === 'butcher' && 'Calcul Prix au Kilogramme'}
+                  {showcaseSector === 'cosmetics' && 'Péremptions DLUO'}
+                </span>
+              </>
+            )}
           </h2>
           <p style={{ fontSize: '0.96rem', color: 'var(--text-muted)', maxWidth: '780px', margin: '0 auto', lineHeight: '1.6' }}>
             {showcaseSector === 'restaurant' && "Découvrez en direct l'interface tactile utilisée par les serveurs, le plan de table 2D interactif, l'écran cuisine KDS sans fil et l'impression automatique des tickets d'addition en MRU."}
@@ -1676,9 +1703,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <h2 style={{ fontSize: 'clamp(1.9rem, 3.8vw, 2.7rem)', fontWeight: 900, margin: '6px 0 12px', letterSpacing: '-0.02em', color: 'var(--text-main)' }}>
               Une Caisse Préconfigurée pour{' '}
               <span style={{
-                background: 'linear-gradient(135deg, #006233 0%, #16a34a 50%, #10b981 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: '#10b981',
                 display: 'inline-block'
               }}>
                 Chaque Commerce en Mauritanie
@@ -2624,9 +2649,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <h2 style={{ fontSize: 'clamp(1.9rem, 3.8vw, 2.7rem)', fontWeight: 900, letterSpacing: '-0.02em', margin: '0 0 10px' }}>
             Abonnez-vous à la Journée selon{' '}
             <span style={{
-              background: 'linear-gradient(135deg, #006233 0%, #16a34a 50%, #10b981 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#10b981',
               display: 'inline-block'
             }}>
               Vos Vrais Besoins
@@ -2656,9 +2679,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
               <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '2px' }}>
                 <span style={{
-                  background: 'linear-gradient(135deg, #10b981, #22c55e)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
+                  color: '#10b981'
                 }}>
                   {subscriptionDays}
                 </span>
@@ -2891,9 +2912,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           }}>
             Démarrez Votre Caisse{' '}
             <span style={{
-              background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#10b981',
               display: 'inline-block'
             }}>
               dès Aujourd'hui
