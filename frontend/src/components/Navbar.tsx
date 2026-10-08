@@ -21,8 +21,10 @@ import {
   ChevronDown,
   SlidersHorizontal,
   Scale,
-  Sparkles
+  Sparkles,
+  Globe
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { loginPinApi } from '../services/api';
 import type { UserAccount } from './AuthModal';
 import type { SectorType } from '../data/mockData';
@@ -69,6 +71,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isGestionMenuOpen, setIsGestionMenuOpen] = useState<boolean>(false);
   const [pinCode, setPinCode] = useState<string>('');
   const [pinError, setPinError] = useState<string | null>(null);
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'fr' ? 'ar' : 'fr');
+  };
 
   const handlePinSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -230,7 +237,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               borderRadius: '6px'
             }}
           >
-            <span>Créer Compte</span>
+            <span>{t('nav.login') || 'Créer Compte'}</span>
           </button>
         )}
 
@@ -261,7 +268,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Mode Restauration & Chwaya"
           >
             <UtensilsCrossed size={11} />
-            <span>Resto</span>
+            <span>{t('common.restaurant').split(' ')[0] || 'Resto'}</span>
           </button>
           <button
             onClick={() => setSector('market')}
@@ -355,7 +362,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           }}
         >
           <Store size={14} />
-          <span>Point de Vente</span>
+          <span>{t('nav.pos') || 'Point de Vente'}</span>
           {cartCount > 0 && (
             <span style={{
               background: currentTab === 'pos' ? 'rgba(0,0,0,0.25)' : '#e11d48',
@@ -460,7 +467,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
             >
               <Package size={14} />
-              <span>Stocks</span>
+              <span>{t('nav.stock') || 'Stocks'}</span>
             </button>
 
             <button
@@ -481,7 +488,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
             >
               <BookOpen size={14} />
-              <span>الكريدي</span>
+              <span>{t('nav.kridi') || 'الكريدي'}</span>
             </button>
           </>
         )}
@@ -761,6 +768,23 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <Home size={12} />
           <span>Vitrine</span>
+        </button>
+
+        <button
+          onClick={toggleLanguage}
+          className="btn-secondary"
+          style={{
+            padding: '4px 8px',
+            fontSize: '0.72rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            borderRadius: '6px'
+          }}
+          title="Changer la langue / Change Language"
+        >
+          <Globe size={12} />
+          <span>{i18n.language === 'fr' ? 'العربية' : 'Français'}</span>
         </button>
 
         <button

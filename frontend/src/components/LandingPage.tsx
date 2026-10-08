@@ -22,8 +22,10 @@ import {
   Wifi,
   Battery,
   Layers,
-  Phone
+  Phone,
+  Globe
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { UserAccount } from './AuthModal';
 import type { SectorType } from '../data/mockData';
 
@@ -45,6 +47,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenAuthModal,
   onLogout
 }) => {
+  const { i18n } = useTranslation();
   const [activePreviewTab, setActivePreviewTab] = useState<'pos' | 'kridi' | 'stock' | 'dashboard' | 'kds'>('pos');
   const [showcaseSector, setShowcaseSector] = useState<SectorType>('restaurant');
   const [restaurantCaptureTab, setRestaurantCaptureTab] = useState<'pos' | 'tables' | 'kds' | 'receipt'>('pos');
@@ -233,6 +236,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           {/* CTA Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={() => i18n.changeLanguage(i18n.language === 'fr' ? 'ar' : 'fr')}
+              style={{
+                background: 'none',
+                border: '1px solid var(--border-glass)',
+                padding: '8px 12px',
+                borderRadius: '999px',
+                color: 'var(--text-main)',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Globe size={14} />
+              {i18n.language === 'fr' ? 'العربية' : 'Français'}
+            </button>
+
             {account ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{
@@ -440,7 +463,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             transition: 'transform 0.2s ease'
           }}>
             <span className="pulse-live-dot" />
-            <span style={{ color: '#10b981' }}>La Solution POS Cloud & Caisse Tactile n°1 en Mauritanie</span>
+            <span style={{ color: '#10b981' }}>{i18n.language === 'fr' ? 'La Solution POS Cloud & Caisse Tactile n°1 en Mauritanie' : 'الحل السحابي رقم 1 لنقاط البيع في موريتانيا'}</span>
             <span style={{
               background: '#10b981',
               color: '#000000',
@@ -462,16 +485,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             maxWidth: '960px',
             margin: '0 auto 16px',
             letterSpacing: '-0.03em',
-            color: 'var(--text-main)'
+            color: 'var(--text-main)',
+            direction: i18n.language === 'ar' ? 'rtl' : 'ltr'
           }}>
-            La Caisse Enregistreuse Intelligente pour{' '}
+            {i18n.language === 'fr' ? 'La Caisse Enregistreuse Intelligente pour ' : 'نظام الكاشير الذكي الخاص بـ '}
             <span style={{
               background: 'linear-gradient(135deg, #006233 0%, #16a34a 50%, #10b981 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               display: 'inline-block'
             }}>
-              Boutiques & Restaurants
+              {i18n.language === 'fr' ? 'Boutiques & Restaurants' : 'المحلات والمطاعم'}
             </span>
           </h1>
 
@@ -497,9 +521,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             color: 'var(--text-muted)',
             maxWidth: '820px',
             margin: '0 auto 32px',
-            lineHeight: '1.65'
+            lineHeight: '1.65',
+            direction: i18n.language === 'ar' ? 'rtl' : 'ltr'
           }}>
-            Encaissez en un éclair avec <strong style={{ color: '#ea580c' }}>Bankily (BPM)</strong>, <strong style={{ color: '#2563eb' }}>Masrvi (BIM)</strong> et Espèces. Maîtrisez vos dettes clients avec le <strong style={{ color: '#a855f7' }}>Carnet de Crédit (الكريدي)</strong>, gérez vos stocks et imprimez des tickets conformes <strong style={{ color: '#10b981' }}>NIF & TVA 16%</strong>, même sans connexion internet.
+            {i18n.language === 'fr' ? (
+              <>Encaissez en un éclair avec <strong style={{ color: '#ea580c' }}>Bankily (BPM)</strong>, <strong style={{ color: '#2563eb' }}>Masrvi (BIM)</strong> et Espèces. Maîtrisez vos dettes clients avec le <strong style={{ color: '#a855f7' }}>Carnet de Crédit (الكريدي)</strong>, gérez vos stocks et imprimez des tickets conformes <strong style={{ color: '#10b981' }}>NIF & TVA 16%</strong>, même sans connexion internet.</>
+            ) : (
+              <>حاسب زبائنك بسرعة البرق مع <strong style={{ color: '#ea580c' }}>بنكيلي (BPM)</strong>، <strong style={{ color: '#2563eb' }}>مصرفي (BIM)</strong> والنقد. تحكم في ديون الزبائن مع <strong style={{ color: '#a855f7' }}>دفتر الكريدي</strong>، أدر مخزونك واطبع تذاكر مطابقة لـ <strong style={{ color: '#10b981' }}>NIF & TVA 16%</strong>، حتى بدون إنترنت.</>
+            )}
           </p>
 
           {/* Social Proof Rating */}
@@ -514,10 +543,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             border: '1px solid var(--border-glass)',
             fontSize: '0.8rem',
             color: 'var(--text-muted)',
-            fontWeight: 600
+            fontWeight: 600,
+            direction: i18n.language === 'ar' ? 'rtl' : 'ltr'
           }}>
             <span style={{ color: '#f59e0b', fontSize: '0.9rem', letterSpacing: '1px' }}>★★★★★</span>
-            <span><strong>4.9/5</strong> plébiscité par +180 commerces et restaurants à Nouakchott & Nouadhibou</span>
+            <span><strong>4.9/5</strong> {i18n.language === 'fr' ? 'plébiscité par +180 commerces et restaurants à Nouakchott & Nouadhibou' : 'معتمد من طرف +180 متجر ومطعم في نواكشوط ونواذيبو'}</span>
           </div>
 
           {/* Hero CTAs */}
@@ -542,7 +572,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               className="hero-cta-btn-primary"
             >
               <UtensilsCrossed size={18} />
-              <span>{account ? 'Accéder à ma Caisse Restaurant ➔' : 'Créer un Compte Restaurant (Essai 14j Gratuit)'}</span>
+              <span>
+                {account 
+                  ? (i18n.language === 'fr' ? 'Accéder à ma Caisse Restaurant ➔' : 'الدخول إلى الكاشير الخاص بي ➔') 
+                  : (i18n.language === 'fr' ? 'Créer un Compte Restaurant (Essai 14j Gratuit)' : 'إنشاء حساب مطعم (14 يوم مجاناً)')}
+              </span>
               <ArrowRight size={18} />
             </button>
 
@@ -551,7 +585,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               className="hero-cta-btn-glass"
             >
               <Store size={18} color="#10b981" />
-              <span>Lancer la Démo Caisse (go.caissa.mr)</span>
+              <span>{i18n.language === 'fr' ? 'Lancer la Démo Caisse (go.caissa.mr)' : 'تشغيل العرض التجريبي للكاشير'}</span>
             </button>
 
             <button
@@ -559,7 +593,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               className="hero-cta-btn-glass"
             >
               <BookOpen size={18} color="#a855f7" />
-              <span>Découvrir le Carnet Kridi</span>
+              <span>{i18n.language === 'fr' ? 'Découvrir le Carnet Kridi' : 'اكتشف دفتر الكريدي'}</span>
             </button>
 
             <a
